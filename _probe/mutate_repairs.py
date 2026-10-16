@@ -905,6 +905,34 @@ MUTATIONS = [
      "test_exit_criteria.py",
      "a record calling a job successful that GitHub calls failed"),
 
+    # SELF-F18. Alex Zamurko, 16 October 2026: the coverage checker "must
+    # recognise actual executable test commands, not comments or disabled
+    # steps." The first version searched ci.yml as one string, so a suite named
+    # only in a comment passed, and the comments in that file name several
+    # suites while explaining why they were added. It established that somebody
+    # had once typed the name.
+    #
+    # Two lines, because a comment can hide in two places. This one is the
+    # shell comment inside a `run:` block, which the YAML parser hands over as
+    # data and only this line removes.
+    ("SELF-F18a  a suite commented out inside a run block is not coverage",
+     "test_ci_coverage.py",
+     "    live = [ln for ln in run.splitlines() "
+     "if not ln.lstrip().startswith(\"#\")]",
+     "    live = run.splitlines()",
+     "test_ci_coverage.py",
+     "a suite commented out inside a run block"),
+
+    # And this one is the gate. Flatten every `if:` to the empty condition and
+    # a step that runs only on a manual dispatch counts as running on push,
+    # which is the permissive direction the whole check exists to refuse.
+    ("SELF-F18b  a step behind an undecided condition is not coverage",
+     "test_ci_coverage.py",
+     "    text = str(value).strip()",
+     "    return \"\"",
+     "test_ci_coverage.py",
+     "a suite in a job gated by an undecided condition"),
+
     # SELF-F13's line belongs here and is deliberately absent. The repair is
     # in approval_package.py, on Alex Zamurko's ruling of 14 October 2026 that
     # a failed dependency must prevent approval. Its control is not written

@@ -1,0 +1,13 @@
+# What this repository's checks need.
+#
+# Only what CI actually executes belongs here. Both entries are load-bearing:
+# remove either and a suite fails at import, which looks like a broken control
+# rather than a missing package.
+
+# convert_protocol.py reads the protocol from .docx, at module scope, so its
+# suite aborts at import time without this.
+python-docx==1.1.2
+
+# test_ci_coverage.py parses the workflow rather than searching it as text, so
+# that a suite named only in a comment cannot pass for one that is run.
+pyyaml==6.0.2

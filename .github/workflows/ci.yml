@@ -24,6 +24,16 @@ jobs:
         with:
           python-version: "3.11"
 
+      # This workflow was written without an install step and pushed without
+      # being watched, so the first run was red: convert_protocol.py imports
+      # python-docx at module scope and its suite aborts at import without it.
+      # The private repository's workflow carries a comment describing that
+      # exact failure from 17 September, which is how long the lesson took to
+      # not transfer. A workflow nobody has seen run is a workflow nobody has
+      # checked.
+      - name: dependencies
+        run: pip install -r requirements-ci.txt
+
       - name: test_approval_package.py
         if: ${{ !cancelled() }}
         run: python scripts/test_approval_package.py
