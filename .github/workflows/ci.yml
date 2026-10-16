@@ -1,0 +1,71 @@
+name: ci
+
+# Minimal, and minimal on purpose. The private repository's workflow also
+# builds a Go service, measures a citation corpus and runs a two-hour mutation
+# sweep, none of which exist here. What remains is the review layer's own
+# controls, which is what this repository is for.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  review-machinery:
+    name: the review layer's controls
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: test_approval_package.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_approval_package.py
+      - name: test_bootstrap_gate.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_bootstrap_gate.py
+      - name: test_ci_coverage.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_ci_coverage.py
+      - name: test_convert_protocol.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_convert_protocol.py
+      - name: test_encoding_discipline.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_encoding_discipline.py
+      - name: test_exit_criteria.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_exit_criteria.py
+      - name: test_interfaces.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_interfaces.py
+      - name: test_ledger.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_ledger.py
+      - name: test_probe_anchors.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_probe_anchors.py
+      - name: test_probe_recovery.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_probe_recovery.py
+      - name: test_protocol_pin.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_protocol_pin.py
+      - name: test_run_review.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_run_review.py
+      - name: test_validate_cycle.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_validate_cycle.py
+
+      # Last deliberately: it asks whether anything above wrote into the
+      # repository, so it has to run after all of them.
+      - name: no suite wrote into the record
+        if: ${{ !cancelled() }}
+        run: git diff --exit-code

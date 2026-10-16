@@ -1,0 +1,5 @@
+__pycache__/
+*.py[cod]
+/.probe-sandboxes/
+/_probe/.probe-lock.json
+/_probe/.active-mutation.json
