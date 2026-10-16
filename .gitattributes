@@ -1,0 +1,14 @@
+# Specifications are hashed. BOOTSTRAP-EXIT-CRITERIA.sha256 in this repository
+# pins BOOTSTRAP-EXIT-CRITERIA.md by SHA-256, and under core.autocrlf=true a
+# Windows checkout rewrites LF to CRLF, the hash stops matching, and nothing
+# says "line endings": it reads as the specification having been altered.
+#
+# `-text` rather than `text eol=lf`. Do not convert in either direction. The
+# point is that these bytes never change.
+specs/** -text
+
+# Orchestration scripts are normalised to LF because they get hashed too. The
+# review protocol freezes a script and its negative controls as a review
+# target with a recorded SHA-256, and a checkout that rewrote them would make
+# that hash stop verifying.
+*.py text eol=lf

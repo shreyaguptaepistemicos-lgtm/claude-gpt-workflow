@@ -308,7 +308,8 @@ def main() -> int:
     def evidence(t: Path, commit: str, covers: list, body: str | None = None,
                  digest: str | None = None, write_log: bool = True,
                  purpose: str = "repair_verification",
-                 api_sha: str = "", api_conclusion: str = "") -> None:
+                 api_sha: str = "", api_conclusion: str = "",
+                 api_job: str = "sweep") -> None:
         # The log mentions what it covers by default, because since 15 October
         # coverage is read out of the preserved output rather than out of the
         # declaration. A body that named nothing would make every positive
@@ -343,7 +344,10 @@ def main() -> int:
         _r = _raw("run", {"head_sha": api_sha or commit,
                           "html_url": "https://example.invalid",
                           "status": "completed", "conclusion": "success"})
-        _j = _raw("jobs", {"jobs": [{"name": "sweep",
+        # api_job exists so a control can make the reply contain a different
+        # job from the one the record names. The record always says "sweep";
+        # changing what GitHub replied is the only way to test that half.
+        _j = _raw("jobs", {"jobs": [{"name": api_job,
                                      "conclusion": api_conclusion
                                      or "success"}]})
         (d / "execution-evidence.json").write_text(json.dumps({
@@ -439,6 +443,22 @@ def main() -> int:
     evidence(t, head, ["X01-F01"], api_conclusion="failure")
     refuses("a record calling a job successful that GitHub calls failed",
             run(t), "EC-4", "GitHub's reply says")
+
+    # ---- Alex Zamurko, 16 October 2026 ----
+    #
+    # He listed the negative cases EC-4 should have by name: wrong repository,
+    # wrong commit, wrong job, wrong conclusion, missing or altered log, and
+    # coverage the output does not support. Five of those were above already.
+    #
+    # This is the sixth. The refusal for it was written on 15 October and
+    # nothing ever exercised it, so whether it fires was an argument from
+    # reading the source. A record naming a job that is not in the reply is
+    # how a green run from a different workflow gets cited for a repair that
+    # workflow never touched.
+    t, head = build()
+    evidence(t, head, ["X01-F01"], api_job="docker")
+    refuses("a record naming a job GitHub's reply does not contain",
+            run(t), "EC-4", "contains no job named")
 
     # "Match evidence to an explicitly frozen candidate SHA, not
     #  indiscriminately to the latest repository HEAD... Committing evidence
