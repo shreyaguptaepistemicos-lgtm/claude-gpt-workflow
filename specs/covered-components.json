@@ -1,0 +1,40 @@
+{
+  "schema": "covered-components/1",
+  "note": "The single authoritative definition of what the bootstrap review covers. Alex Zamurko, 2 October 2026: 'Store the covered-file set in one canonical manifest... Both the review target and the gate should reference and verify the same manifest, preferably by version and hash.' The gate reads this file and keeps no list of its own. A review target records the version and hash it was frozen against, and the gate refuses a review that used any other. Scope changes only by editing this file, raising the version, and recording the authorisation below; the gate replays that history and refuses a manifest whose components do not match it. This file is itself a covered component, so a scope change invalidates existing approvals and requires a fresh review, which is the intended consequence rather than an oversight.",
+  "version": 1,
+  "components": [
+    "specs/covered-components.json",
+    "specs/evidence-schema-v1.0.md",
+    "scripts/authority.py",
+    "scripts/bootstrap_gate.py",
+    "scripts/cycle_projection.py",
+    "scripts/findings_format.py",
+    "scripts/ledger.py",
+    "scripts/loop_state.py",
+    "scripts/run_pins.py",
+    "scripts/run_review.py",
+    "scripts/validate_cycle.py"
+  ],
+  "history": [
+    {
+      "version": 1,
+      "at": "2026-10-02T00:00:00Z",
+      "authorized_by": "Alex Zamurko",
+      "reason": "C03-F02. The covered set had grown from ten files to seventeen by textual reference, including four control suites and a filename appearing only inside a comment. Ruling of 2 October 2026: make the covered-component set explicit and authoritative, remove automatic scope expansion from filename references, and treat test suites and execution records as review evidence rather than approved components. The components below are the four roots declared on 9 September, the evidence schema, the four modules those roots genuinely import, the gate itself, and this manifest.",
+      "added": [
+        "specs/covered-components.json",
+        "specs/evidence-schema-v1.0.md",
+        "scripts/authority.py",
+        "scripts/bootstrap_gate.py",
+        "scripts/cycle_projection.py",
+        "scripts/findings_format.py",
+        "scripts/ledger.py",
+        "scripts/loop_state.py",
+        "scripts/run_pins.py",
+        "scripts/run_review.py",
+        "scripts/validate_cycle.py"
+      ],
+      "removed": []
+    }
+  ]
+}

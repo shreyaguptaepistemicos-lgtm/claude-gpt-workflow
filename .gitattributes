@@ -7,6 +7,11 @@
 # point is that these bytes never change.
 specs/** -text
 
+# Scope-change approvals. The gate records each approval's own SHA-256 beside
+# the decision, and the approval records the manifest's, so a checkout that
+# rewrote either would make both records stop describing the files they name.
+approvals/** -text
+
 # Orchestration scripts are normalised to LF because they get hashed too. The
 # review protocol freezes a script and its negative controls as a review
 # target with a recorded SHA-256, and a checkout that rewrote them would make
