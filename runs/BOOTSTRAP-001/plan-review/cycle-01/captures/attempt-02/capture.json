@@ -1,0 +1,13 @@
+{
+  "attempt": 2,
+  "recorded_at": "2026-09-09T15:42:07Z",
+  "source": "codex-output-direct-capture.md",
+  "invocation": "manual",
+  "note": "the operator's direct save from the Codex panel, found in scripts/ afterwards; more faithful (keeps the --- rules, markdown hard breaks and curly punctuation the transcription normalised) but recorded second",
+  "sha256": "f34cf24cb291ed15f89d06c26003a845cb055412c12f28ffb05f1792c4c8bef3",
+  "bytes": 15080,
+  "valid": true,
+  "problems": [],
+  "retry_reason": "",
+  "backfilled": "migrated into the attempt structure after issue 6; originally stored as loose files in the cycle"
+}

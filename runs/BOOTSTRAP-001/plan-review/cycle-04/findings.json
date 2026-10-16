@@ -1,0 +1,40 @@
+{
+  "schema": "cycle-findings/1",
+  "review_result_status": "VALID",
+  "raw_finding_count": 5,
+  "finding_id_grammar": "^[A-Z]{0,2}\\d{2}-F\\d{2,3}$",
+  "cycle": 4,
+  "extracted_at": "2026-09-15T19:20:05Z",
+  "source": "captures/attempt-01/raw.md",
+  "source_attempt": 1,
+  "source_sha256": "33aed4c8c72a43dba4408ec7fb3253db3f5d91b1b297cbdb7822e54c3486b382",
+  "count": 5,
+  "zero_findings_asserted": false,
+  "findings": [
+    {
+      "id": "B01-F02",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "kind": "recurrence"
+    },
+    {
+      "id": "B01-F07",
+      "class": "MISSING REQUIREMENT",
+      "kind": "recurrence"
+    },
+    {
+      "id": "B01-F11",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "kind": "recurrence"
+    },
+    {
+      "id": "B01-F14",
+      "class": "MISSING REQUIREMENT",
+      "kind": "recurrence"
+    },
+    {
+      "id": "B02-F04",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "kind": "recurrence"
+    }
+  ]
+}

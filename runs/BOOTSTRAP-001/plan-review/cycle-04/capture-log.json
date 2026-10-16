@@ -1,0 +1,19 @@
+{
+  "schema": "cycle-capture/1",
+  "authoritative": 1,
+  "attempts": [
+    {
+      "attempt": 1,
+      "recorded_at": "2026-09-15T19:20:05Z",
+      "source": "C:\\EpistemicOS\\epistemicos\\reply-04.md",
+      "invocation": "manual",
+      "note": "Reviewer wrote this capture file directly on request; clipboard transcription failed three times and the reviewer's own write avoids a transcription step entirely.",
+      "sha256": "33aed4c8c72a43dba4408ec7fb3253db3f5d91b1b297cbdb7822e54c3486b382",
+      "bytes": 8416,
+      "valid": true,
+      "problems": [],
+      "retry_reason": ""
+    }
+  ],
+  "authoritative_sha256": "33aed4c8c72a43dba4408ec7fb3253db3f5d91b1b297cbdb7822e54c3486b382"
+}

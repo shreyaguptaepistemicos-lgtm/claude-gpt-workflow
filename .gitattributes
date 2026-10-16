@@ -12,6 +12,15 @@ specs/** -text
 # rewrote either would make both records stop describing the files they name.
 approvals/** -text
 
+# Review evidence, and the directory the whole protocol is about. Every file
+# under it is hashed by something: target.sha256 over target.json, the capture
+# log's authoritative_sha256 over the reviewer's raw reply, MC-2 check 10
+# binding the composed input to the frozen target, and each cycle's snapshot
+# against the values recorded at freeze. A checkout that rewrote line endings
+# would break all of them at once, and nothing would say "line endings". It
+# would read as fabricated or corrupted evidence.
+runs/** -text
+
 # Orchestration scripts are normalised to LF because they get hashed too. The
 # review protocol freezes a script and its negative controls as a review
 # target with a recorded SHA-256, and a checkout that rewrote them would make

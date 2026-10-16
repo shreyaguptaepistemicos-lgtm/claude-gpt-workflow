@@ -59,14 +59,53 @@ def with_register(root: Path, text: str | None = None) -> Path:
     against run.json in test_ledger.py's fixture.
 
     `text` overrides the contents, which is how the malformed case is built.
+
+    Built rather than copied, since 17 October 2026. The first version copied
+    the live register in from this repository, which is SELF-F17's defect in a
+    second place: a fixture that reaches outside itself for a production file
+    passes only where that file happens to exist, and an outside reviewer
+    running this suite on a scope-limited copy got FileNotFoundError before
+    the first control. The register's contents are not what any control here
+    examines; its readability is. So the fixture provides exactly that, and
+    says in its own text that it is a fixture.
+
+    The real register is still read, once, by the control that checks the
+    package presents its entries. That control examines this repository's own
+    record on purpose and belongs with the others that do.
     """
     (root / "registers").mkdir(exist_ok=True)
     dest = root / "registers" / "implementer-disclosed.json"
     if text is None:
-        shutil.copy(SRC.parent / "registers" / "implementer-disclosed.json",
-                    dest)
-    else:
-        dest.write_text(text, encoding="utf-8")
+        text = json.dumps({
+            "schema": "implementer-disclosed/1",
+            "purpose": "A fixture register. Not a record of anything. The "
+                       "entry below is invented so the approval package's "
+                       "disclosure section has something to render.",
+            "states": {
+                "OPEN": "disclosed, not repaired",
+                "REPAIRED_UNREVIEWED": "a repair has landed with controls "
+                                       "behind it, and nobody independent has "
+                                       "examined it",
+                "RESOLVED": "an independent review examined the repair in a "
+                            "later target and found it held",
+            },
+            "entries": {
+                "FIXTURE-01": {
+                    "description": "Invented for this fixture. No reviewer "
+                                   "and no agent found it.",
+                    "discovery_source": "Fixture, written by "
+                                        "scripts/test_approval_package.py.",
+                    "affected_component": "none, this is a fixture",
+                    "severity": "none, this is a fixture",
+                    "state": "REPAIRED_UNREVIEWED",
+                    "review_cycle": None,
+                    "proposed_repair": "none required, this is a fixture",
+                    "required_of_next_review": True,
+                    "history": [],
+                },
+            },
+        }, indent=2) + "\n"
+    dest.write_text(text, encoding="utf-8", newline="\n")
     return root
 
 

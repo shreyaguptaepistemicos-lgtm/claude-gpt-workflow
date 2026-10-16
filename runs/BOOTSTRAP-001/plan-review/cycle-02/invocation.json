@@ -1,0 +1,10 @@
+{
+  "authoritative_attempt": 2,
+  "authoritative_sha256": "b47f10f2d1a607694aca7598e2444579458778618a907a4c5e8d5f977a7409da",
+  "attempts_recorded": 2,
+  "invocation": "manual",
+  "recorded_at": "2026-09-10T14:20:26Z",
+  "source": "C:\\EpistemicOS\\epistemicos\\reply-02.md",
+  "note": "",
+  "unproven": "This file records how the review was invoked. It does not establish that codex-output-raw.md came from codex-input.md."
+}

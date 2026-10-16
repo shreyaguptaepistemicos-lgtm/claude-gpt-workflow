@@ -1,0 +1,37 @@
+{
+  "note": "Control suites as they stood at freeze. NOT members of the review target: these bytes were not reviewed, and their presence here is a record of which controls the stated counts came from, not a claim that any of them was examined. target.json records this file's SHA-256 and target.sha256 covers target.json, so a change here is detectable by anyone who compares the two. No MC-2 check performs that comparison: this is a record, not an enforced binding.",
+  "suites": [
+    {
+      "path": "scripts/test_bootstrap_gate.py",
+      "sha256": "dca630ed2a07aa7fdeb9e8bb2aa50351ab2567d755f07ef33e3feedd1ed788fa"
+    },
+    {
+      "path": "scripts/test_convert_protocol.py",
+      "sha256": "a92eecd651d8e13e71541f24a27db48b54c4c855077e0a8f199e46e50c001471"
+    },
+    {
+      "path": "scripts/test_interfaces.py",
+      "sha256": "50126c5d66ddcf0dc937175f1cbf577efc1c550cd61c32cbf799ebb3de3e15e9"
+    },
+    {
+      "path": "scripts/test_ledger.py",
+      "sha256": "2fe08ec6653ce04f3383885142ed41e2ed0075ef11fe549ad89ea79bbadb211c"
+    },
+    {
+      "path": "scripts/test_prompts.py",
+      "sha256": "707f645fb54784511212ace91b627785ac01258ed1103cc260069ac1a3271cd4"
+    },
+    {
+      "path": "scripts/test_protocol_pin.py",
+      "sha256": "32ece0d6028238e6a54c0f6cf89b7a24670aee72930c7904acc60f3e6d595e86"
+    },
+    {
+      "path": "scripts/test_run_review.py",
+      "sha256": "cfdacea9e7ec6cda8ae2eab7fc289e245766e7f61c23a93a474db896d372995f"
+    },
+    {
+      "path": "scripts/test_validate_cycle.py",
+      "sha256": "bf51815a17bb5829d23d76ea47964f0a71f26e65f68f2708fcfc168e85336bcf"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "review_type": "plan",
+  "run_id": "BOOTSTRAP-001",
+  "cycle": 2,
+  "protocol_commit": "63939ecbe0f5271569bba09a203c8df534612e64",
+  "protocol_sha256": "296594a3c06cd2f9c66976c369b15804f39bbb2be37b5e62234d37fafd28d483",
+  "spec_sha256": "ad7f1099b66263123795dc2bf15f8275ad290bf91cdb0f5efaa09a942a8f321f",
+  "frozen_at": "2026-09-10T13:33:53Z",
+  "plan_files": [
+    {
+      "path": "specs/evidence-schema-v1.0.md",
+      "sha256": "4203ba64bd5ba1db9cd56357c8bf9dd8e6efb419fab7f7635a415c272d3a739c"
+    },
+    {
+      "path": "scripts/validate_cycle.py",
+      "sha256": "b61bea2ab823558570ab9e8afcc8d06ad20c02f3b162cd3dc79545a40ceebb07"
+    },
+    {
+      "path": "scripts/run_review.py",
+      "sha256": "976b9af1155f5c55f122b5640af09afd6640626d8fd4214ddf407d23aea9715a"
+    },
+    {
+      "path": "scripts/ledger.py",
+      "sha256": "43a842cd5f5aea26bf8ba8964640b906d18be9e866c2045aee035dd3a8bf4f88"
+    },
+    {
+      "path": "scripts/loop_state.py",
+      "sha256": "d99ea037d55acb074a669a1f888f7ec1caa469c71453057bc81759ca5371d650"
+    },
+    {
+      "path": "scripts/bootstrap_gate.py",
+      "sha256": "9bb99992c26141f80cc4c68c2210813c74fe38cf844d957ce07fef118b2aba5c"
+    },
+    {
+      "path": "scripts/findings_format.py",
+      "sha256": "727f722a3fba0c04d2165b043d1294f251d00ba56fe60b363977dbd11fc99d7b"
+    },
+    {
+      "path": "scripts/cycle_projection.py",
+      "sha256": "f057b9aff4257e5ad27eb9da5a75a93f6f969d2c9ee47a71c601eb14b4cd3e78"
+    },
+    {
+      "path": "scripts/authority.py",
+      "sha256": "2794e8149559593fe9fb5fb49e3998ad4b84fcbe1cebb077188ba5ea6f6aa203"
+    },
+    {
+      "path": "scripts/run_pins.py",
+      "sha256": "4c476f304c7688c188eb62f940227e2f688b0f1c2dc59feca43e1fe7a352d344"
+    }
+  ]
+}

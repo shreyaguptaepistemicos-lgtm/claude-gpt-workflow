@@ -1,0 +1,13 @@
+{
+  "attempt": 1,
+  "recorded_at": "2026-09-09T15:42:07Z",
+  "source": "codex-output-raw.md",
+  "invocation": "manual",
+  "note": "reached the file via the chat transcript after three failed clipboard captures; this is what was recorded and designated on 9 September",
+  "sha256": "4f554ce182bd120255fcf1222ec6de97df17a69b9227e4addda9af3f2c4c37a2",
+  "bytes": 14754,
+  "valid": true,
+  "problems": [],
+  "retry_reason": "",
+  "backfilled": "migrated into the attempt structure after issue 6; originally stored as loose files in the cycle"
+}

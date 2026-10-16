@@ -1,0 +1,30 @@
+{
+  "schema": "run-pin-amendments/1",
+  "run_id": "BOOTSTRAP-001",
+  "note": "run.json is not edited. It remains the record of what was pinned when this run was created, and cycle 01 was conducted under exactly that set. Changes are appended here, and the set governing any cycle is replayed from this history.",
+  "amendments": [
+    {
+      "effective_cycle": 2,
+      "reason": "specs/evidence-schema-v1.0.md was pinned at run level and was simultaneously the first of cycle 01's six review targets. Cycle 01 raised findings that could only be repaired by editing it (B01-F10 put it in the gate's covered set, and findings_format.py required FINDING_ID_GRAMMAR to be declared there). Editing it broke the run's own pin, so the runner refused to open cycle 02, the cycle whose purpose was to demonstrate those repairs and move eighteen findings out of OPEN. The repairs the review demanded were what made the next review impossible.",
+      "affected_artifacts": [
+        "specs/evidence-schema-v1.0.md"
+      ],
+      "prior_pin_set": [
+        "specs/evidence-schema-v1.0.md",
+        "specs/implementation-review-protocol-v1.1.md"
+      ],
+      "new_pin_set": [
+        "specs/implementation-review-protocol-v1.1.md"
+      ],
+      "authorized_by": "Alex Zamurko",
+      "at": "2026-09-10T00:00:00Z",
+      "authority": "Alex Zamurko, 10 September 2026, Run-Pin and Review-Target Separation Specification, in #gap. \"A run-level pin may include only artifacts that are required to remain invariant for the entire run. An artifact that is expected to be reviewed, modified, or repaired during the run must not be pinned at run level as an immutable governing artifact.\" He named the outcome directly: RUN-LEVEL GOVERNING PIN implementation-review-protocol-v1.1.md, CYCLE-LEVEL REVIEW TARGET evidence-schema-v1.0.md.",
+      "governing_invariant": "No review process may require an artifact to remain byte-invariant for the duration of a run while simultaneously requiring that same artifact version to change in order to resolve review findings.",
+      "role_after": {
+        "specs/implementation-review-protocol-v1.1.md": "RUN-GOVERNING",
+        "specs/evidence-schema-v1.0.md": "REVIEW-TARGET"
+      },
+      "cycle_01_unaffected": "Cycle 01 was frozen and reviewed under the prior pin set and is still checked against it. This amendment applies forward from cycle 02. B01-F07, open by deferral, is the finding that nothing ties a cycle's recorded protocol_sha256 and spec_sha256 back to the run; when it is repaired it must bind each cycle to the pins in force at that cycle, or it will retroactively invalidate cycle 01."
+    }
+  ]
+}

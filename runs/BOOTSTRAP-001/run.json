@@ -1,0 +1,28 @@
+{
+  "run_id": "BOOTSTRAP-001",
+  "created_at": "2026-09-09T08:22:11Z",
+  "protocol_commit": "63939ecbe0f5271569bba09a203c8df534612e64",
+  "protocol": {
+    "path": "specs/implementation-review-protocol-v1.1.md",
+    "sha256": "296594a3c06cd2f9c66976c369b15804f39bbb2be37b5e62234d37fafd28d483"
+  },
+  "protocol_sha256": "296594a3c06cd2f9c66976c369b15804f39bbb2be37b5e62234d37fafd28d483",
+  "spec_files": [
+    {
+      "path": "specs/evidence-schema-v1.0.md",
+      "sha256": "98a5920def59c39dc5c8bdbb5700376e21560ee40654173219a5ac0bef246379"
+    }
+  ],
+  "spec_sha256": "ad7f1099b66263123795dc2bf15f8275ad290bf91cdb0f5efaa09a942a8f321f",
+  "max_cycles": 4,
+  "bootstrap_review": "EXEMPT \u2014 BOOTSTRAP / DEVELOPMENT EVIDENCE, NOT_A_PROTOCOL_CYCLE",
+  "mc1_enforcement": "CONVENTION_ONLY",
+  "mc1_enforcement_provenance": {
+    "added": "2026-09-11",
+    "reconstructed": true,
+    "why": "This run was created on 9 September, before cmd_init wrote mc1_enforcement. The field was absent and nothing required it when the run was consumed, which is B01-F14. It is added now so the requirement holds for every run rather than only for runs that already met it.",
+    "basis": "CONVENTION_ONLY was the enforcement status on 9 September and has not changed since. One machine, one account, no write boundary. The value is reconstructed from that fact, not from a record kept at the time, because no such record was kept.",
+    "authority": "Alex Zamurko, 10 September 2026: 'For BOOTSTRAP-001, record CONVENTION_ONLY as explicitly reconstructed metadata, not as if it had existed originally.'",
+    "note": "Cycles 01 and 02 were frozen and reviewed while this field was absent. Adding it does not change what governed them and is not a claim that it was present at the time."
+  }
+}

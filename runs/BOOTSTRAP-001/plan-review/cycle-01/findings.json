@@ -1,0 +1,84 @@
+{
+  "schema": "cycle-findings/1",
+  "cycle": 1,
+  "extracted_at": "2026-09-09T11:58:10Z",
+  "source": "codex-output-raw.md",
+  "source_sha256": "4f554ce182bd120255fcf1222ec6de97df17a69b9227e4addda9af3f2c4c37a2",
+  "count": 18,
+  "zero_findings_asserted": false,
+  "findings": [
+    {
+      "id": "B01-F01",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING"
+    },
+    {
+      "id": "B01-F02",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING"
+    },
+    {
+      "id": "B01-F03",
+      "class": "WRONG OWNERSHIP"
+    },
+    {
+      "id": "B01-F04",
+      "class": "MISSING REQUIREMENT"
+    },
+    {
+      "id": "B01-F05",
+      "class": "NONDETERMINISTIC WHERE D POSSIBLE"
+    },
+    {
+      "id": "B01-F06",
+      "class": "MISSING REQUIREMENT"
+    },
+    {
+      "id": "B01-F07",
+      "class": "MISSING REQUIREMENT"
+    },
+    {
+      "id": "B01-F08",
+      "class": "MISSING REQUIREMENT"
+    },
+    {
+      "id": "B01-F09",
+      "class": "MISSING REQUIREMENT"
+    },
+    {
+      "id": "B01-F10",
+      "class": "MISSING REQUIREMENT"
+    },
+    {
+      "id": "B01-F11",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING"
+    },
+    {
+      "id": "B01-F12",
+      "class": "MISSING REQUIREMENT"
+    },
+    {
+      "id": "B01-F13",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING"
+    },
+    {
+      "id": "B01-F14",
+      "class": "MISSING REQUIREMENT"
+    },
+    {
+      "id": "B01-F15",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING"
+    },
+    {
+      "id": "B01-F16",
+      "class": "UNTESTED RULE"
+    },
+    {
+      "id": "B01-F17",
+      "class": "UNTESTED RULE"
+    },
+    {
+      "id": "B01-F18",
+      "class": "UNTESTED RULE"
+    }
+  ],
+  "backfilled": "This cycle was recorded before the runner produced authoritative findings. Extracted afterwards from the preserved raw output by the same function record now uses, so the result is a property of the capture rather than of who ran it."
+}

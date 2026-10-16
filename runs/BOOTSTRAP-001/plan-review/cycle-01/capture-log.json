@@ -1,0 +1,39 @@
+{
+  "schema": "cycle-capture/1",
+  "authoritative": 1,
+  "authoritative_sha256": "4f554ce182bd120255fcf1222ec6de97df17a69b9227e4addda9af3f2c4c37a2",
+  "attempts": [
+    {
+      "attempt": 1,
+      "recorded_at": "2026-09-09T15:42:07Z",
+      "source": "codex-output-raw.md",
+      "invocation": "manual",
+      "note": "reached the file via the chat transcript after three failed clipboard captures; this is what was recorded and designated on 9 September",
+      "sha256": "4f554ce182bd120255fcf1222ec6de97df17a69b9227e4addda9af3f2c4c37a2",
+      "bytes": 14754,
+      "valid": true,
+      "problems": [],
+      "retry_reason": "",
+      "backfilled": "migrated into the attempt structure after issue 6; originally stored as loose files in the cycle"
+    },
+    {
+      "attempt": 2,
+      "recorded_at": "2026-09-09T15:42:07Z",
+      "source": "codex-output-direct-capture.md",
+      "invocation": "manual",
+      "note": "the operator's direct save from the Codex panel, found in scripts/ afterwards; more faithful (keeps the --- rules, markdown hard breaks and curly punctuation the transcription normalised) but recorded second",
+      "sha256": "f34cf24cb291ed15f89d06c26003a845cb055412c12f28ffb05f1792c4c8bef3",
+      "bytes": 15080,
+      "valid": true,
+      "problems": [],
+      "retry_reason": "",
+      "backfilled": "migrated into the attempt structure after issue 6; originally stored as loose files in the cycle"
+    }
+  ],
+  "lost_attempts": [
+    {
+      "note": "two earlier captures held 70 bytes of shell command and were deleted before the attempt structure existed. Both passed MC-2, because check 5 only asked whether the file was non-empty. They cannot be reconstructed; recorded here so the count of attempts is not understated."
+    }
+  ],
+  "designation_note": "attempt-01 governs because it was recorded and validated first, per the first-valid-capture rule. attempt-02 is the more faithful reproduction but was found afterwards, and displacing a designated capture to get nicer punctuation is not a reason. Every finding text is identical between them; the differences are whitespace and quote characters."
+}

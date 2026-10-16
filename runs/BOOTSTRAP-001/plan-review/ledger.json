@@ -1,0 +1,1133 @@
+{
+  "findings": {
+    "B01-F01": {
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:49Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:51Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "next_cycle counts directories, not valid cycles, so four invalid cycles exhaust a budget MC-2 says they cannot consume. Verified.",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-14T10:33:59Z",
+          "cycle": 3,
+          "event": "DEMONSTRATED",
+          "note": "cycle 03: repair verdict demonstrated",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "MC-2",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F01 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED",
+      "transcription_note": "recorded as C01-F01 on 9 September; corrected to B01-F01, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F02": {
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:49Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:51Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "The controller tests exits only at the latest boundary and the runner checks only that the previous cycle has output, so a terminal exit in an earlier cycle can be overridden by a later one. Verified.",
+          "state": "OPEN"
+        }
+      ],
+      "repair_status": "IMPLEMENTED_AWAITING_DEMONSTRATION",
+      "requirement_id": "S6",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F02 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "OPEN",
+      "transcription_note": "recorded as C01-F02 on 9 September; corrected to B01-F02, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F03": {
+      "class": "WRONG OWNERSHIP",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:49Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:51Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "The schema assigns per-cycle findings.json to the runner; the runner never writes it and the ledger writes a review-level file instead. An absent ledger reads as a review that found nothing. Verified.",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-10T14:27:48Z",
+          "cycle": 2,
+          "event": "DEMONSTRATED",
+          "note": "cycle 02 review, 'Claimed repairs checked and found to hold': runner-owned per-cycle findings.json, affirmative zero, separated from ledger.json",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "MC-1",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F03 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED",
+      "transcription_note": "recorded as C01-F03 on 9 September; corrected to B01-F03, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F04": {
+      "class": "MISSING REQUIREMENT",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:49Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:51Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "compose_input carries the protocol but not the pinned spec, and for implementation review omits the target identifiers entirely. I fixed the protocol omission last night and stopped one step short. Verified.",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-16T07:51:31Z",
+          "cycle": 4,
+          "event": "DEMONSTRATED",
+          "note": "demonstrated by cycle 04: amended specifications enter the composed input",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "S2.2",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F04 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED",
+      "transcription_note": "recorded as C01-F04 on 9 September; corrected to B01-F04, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F05": {
+      "class": "NONDETERMINISTIC WHERE D POSSIBLE",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:49Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:51Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "candidate_commit is stored verbatim, so HEAD is accepted and stays mutable while checks 11 and 12 keep passing. Verified.",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-14T10:33:59Z",
+          "cycle": 3,
+          "event": "DEMONSTRATED",
+          "note": "cycle 03: repair verdict demonstrated",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "S10.1",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F05 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED",
+      "transcription_note": "recorded as C01-F05 on 9 September; corrected to B01-F05, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F06": {
+      "class": "MISSING REQUIREMENT",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:49Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:51Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "Check 13 compares two recorded strings and never hashes the approved plan, so the plan can change while both records still agree. Verified.",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-10T14:27:47Z",
+          "cycle": 2,
+          "event": "DEMONSTRATED",
+          "note": "cycle 02 review, 'Claimed repairs checked and found to hold': check 13 hashes the named plan, compares with approval and target, requires APPROVE",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "S10.2",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F06 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED",
+      "transcription_note": "recorded as C01-F06 on 9 September; corrected to B01-F06, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F07": {
+      "class": "MISSING REQUIREMENT",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:50Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:51Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "protocol_sha256 and spec_sha256 are checked for presence only; no check ties them to the pinned artifacts or to run.json. Verified.",
+          "state": "OPEN"
+        }
+      ],
+      "repair_status": "IMPLEMENTED_AWAITING_DEMONSTRATION",
+      "requirement_id": "MC-2",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F07 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "OPEN",
+      "transcription_note": "recorded as C01-F07 on 9 September; corrected to B01-F07, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F08": {
+      "class": "MISSING REQUIREMENT",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:50Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:51Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "The bootstrap gate runs at init and never again, so components can change before freeze; and loop_state never reads the exempt label, so development evidence can reach authoritative loop state. Verified.",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-14T10:34:00Z",
+          "cycle": 3,
+          "event": "DEMONSTRATED",
+          "note": "cycle 03: repair verdict demonstrated",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "MC-2",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F08 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED",
+      "transcription_note": "recorded as C01-F08 on 9 September; corrected to B01-F08, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F09": {
+      "class": "MISSING REQUIREMENT",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:50Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:51Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "cmd_record hashes whatever is on disk at decision time and never compares it to the frozen review target, so approval can cover code the review never saw. Verified.",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-14T10:34:01Z",
+          "cycle": 3,
+          "event": "DEMONSTRATED",
+          "note": "cycle 03: repair verdict demonstrated",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "MC-1",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F09 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED",
+      "transcription_note": "recorded as C01-F09 on 9 September; corrected to B01-F09, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F10": {
+      "class": "MISSING REQUIREMENT",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:50Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:51Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "The review target carries six artifacts; the gate covers five. Editing evidence-schema-v1.0.md does not invalidate its own approval. Verified.",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-10T14:27:46Z",
+          "cycle": 2,
+          "event": "DEMONSTRATED",
+          "note": "cycle 02 review, 'Claimed repairs checked and found to hold': evidence schema is a required bootstrap component; gate rejects drift",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "MC-1",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F10 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED",
+      "transcription_note": "recorded as C01-F10 on 9 September; corrected to B01-F10, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F11": {
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:50Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:51Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "The ledger authorises transitions from unfiltered history while the controller filters by valid cycle, so the two disagree about a finding's state and an invalid-cycle event can deadlock a valid one. Verified.",
+          "state": "OPEN"
+        }
+      ],
+      "repair_status": "IMPLEMENTED_AWAITING_DEMONSTRATION",
+      "requirement_id": "S6",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F11 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "OPEN",
+      "transcription_note": "recorded as C01-F11 on 9 September; corrected to B01-F11, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F12": {
+      "class": "MISSING REQUIREMENT",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:50Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:52Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "No event is checked against the finding's raising cycle, so a finding can be accepted and resolved in cycles earlier than the one that raised it. Verified.",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-14T10:34:01Z",
+          "cycle": 3,
+          "event": "DEMONSTRATED",
+          "note": "cycle 03: repair verdict demonstrated",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "S5",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F12 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED",
+      "transcription_note": "recorded as C01-F12 on 9 September; corrected to B01-F12, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F13": {
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:50Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:52Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "The duplicate-id refusal instructs that a re-raised issue becomes a new finding, which contradicts V40 and defeats S6's re-raise detection. The refusal itself is right; its guidance is wrong. Verified.",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-10T14:27:45Z",
+          "cycle": 2,
+          "event": "DEMONSTRATED",
+          "note": "cycle 02 review, 'Claimed repairs checked and found to hold': reopen preserves the identifier and moves RESOLVED to OPEN; guidance points to reopen",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "V40",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F13 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED",
+      "transcription_note": "recorded as C01-F13 on 9 September; corrected to B01-F13, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F14": {
+      "class": "MISSING REQUIREMENT",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:50Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:52Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "MC-1 requires each run to record MC1_ENFORCEMENT. run.json does not carry it; the status lives only in repository documentation. Verified.",
+          "state": "OPEN"
+        }
+      ],
+      "repair_status": "IMPLEMENTED_AWAITING_DEMONSTRATION",
+      "requirement_id": "MC-1",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F14 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "OPEN",
+      "transcription_note": "recorded as C01-F14 on 9 September; corrected to B01-F14, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F15": {
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:50Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:52Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "The schema says freezing proves the artifact did not change, and I told Alex self-hashing closed the replace-evaluate hole. Neither holds under CONVENTION_ONLY: the same writable code performs the check. Verified.",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-10T14:27:47Z",
+          "cycle": 2,
+          "event": "DEMONSTRATED",
+          "note": "cycle 02 review, 'Claimed repairs checked and found to hold': freezing-as-proof and self-hashing-as-protection claims corrected to CONVENTION_ONLY",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "MC-1",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F15 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED",
+      "transcription_note": "recorded as C01-F15 on 9 September; corrected to B01-F15, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F16": {
+      "class": "UNTESTED RULE",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:50Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:52Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "PY_REF matches filename strings, so a real import is invisible to the closure, and my control inserted a string rather than an import. The closure claim I gave Alex was stronger than its evidence. Verified.",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-10T14:27:48Z",
+          "cycle": 2,
+          "event": "DEMONSTRATED",
+          "note": "cycle 02 review, 'Claimed repairs checked and found to hold': AST import discovery repairs the flat-module omission; control uses a real import",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "MC-1",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F16 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED",
+      "transcription_note": "recorded as C01-F16 on 9 September; corrected to B01-F16, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F17": {
+      "class": "UNTESTED RULE",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:50Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:52Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "Two of five implementation refusals are exercised while the suite prints that every refusal is reachable. Verified.",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-10T14:27:45Z",
+          "cycle": 2,
+          "event": "DEMONSTRATED",
+          "note": "cycle 02 review, 'Claimed repairs checked and found to hold': all five implementation refusals assert their particular refusal reasons",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "S10.1",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F17 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED",
+      "transcription_note": "recorded as C01-F17 on 9 September; corrected to B01-F17, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B01-F18": {
+      "class": "UNTESTED RULE",
+      "cycle_raised": 1,
+      "history": [
+        {
+          "at": "2026-09-09T09:38:51Z",
+          "cycle": 1,
+          "event": "RAISED",
+          "note": "transcribed verbatim from codex-output-raw.md, B01 numbering",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-09T09:38:52Z",
+          "cycle": 1,
+          "event": "ACCEPT",
+          "note": "Seam-1 probes sit outside a cycle layout, so check 13 fails on all of them for the wrong reason. Demonstrated: deleting check 12's enforcement outright still reports 7/7 enforced and exits 0.",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-10T14:27:46Z",
+          "cycle": 2,
+          "event": "DEMONSTRATED",
+          "note": "cycle 02 review, 'Claimed repairs checked and found to hold': seam-1 probes use cycle layouts and assert the responsible numbered check",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "MC-2",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B01-F18 appears verbatim in cycle-01/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED",
+      "transcription_note": "recorded as C01-F18 on 9 September; corrected to B01-F18, the identifier the reviewer assigned. Renaming a finding in transcription is B01-F13."
+    },
+    "B02-F01": {
+      "class": "MISSING REQUIREMENT",
+      "cycle_raised": 2,
+      "history": [
+        {
+          "at": "2026-09-10T14:22:46Z",
+          "cycle": 2,
+          "event": "RAISED",
+          "note": "transcribed from cycle-02 findings.json by identifier and class, not by hand",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-14T11:01:55Z",
+          "cycle": 3,
+          "event": "ACCEPT",
+          "note": "accepted by Alex Zamurko 14 September; recorded at cycle 3 rather than backdated to cycle 2, on his ruling",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-16T07:49:49Z",
+          "cycle": 4,
+          "event": "DEMONSTRATED",
+          "note": "demonstrated by cycle 03: the reconciliation runs regardless of whether another block parsed, and the indented block is refused rather than silently omitted. Recorded at cycle 4 because the ACCEPT sits at cycle 3 and section 5 puts the demonstration in a later cycle. Alex Zamurko's ruling, 15 September.",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B02-F01 appears verbatim in cycle-02/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED"
+    },
+    "B02-F02": {
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "cycle_raised": 2,
+      "history": [
+        {
+          "at": "2026-09-10T14:22:46Z",
+          "cycle": 2,
+          "event": "RAISED",
+          "note": "transcribed from cycle-02 findings.json by identifier and class, not by hand",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-14T11:01:55Z",
+          "cycle": 3,
+          "event": "ACCEPT",
+          "note": "accepted by Alex Zamurko 14 September; recorded at cycle 3 rather than backdated to cycle 2, on his ruling",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-16T07:49:50Z",
+          "cycle": 4,
+          "event": "DEMONSTRATED",
+          "note": "demonstrated by cycle 03: the parser accepts the recurrence form without Class, and record resolves its class from the ledger. Recorded at cycle 4 because the ACCEPT sits at cycle 3 and section 5 puts the demonstration in a later cycle. Alex Zamurko's ruling, 15 September.",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B02-F02 appears verbatim in cycle-02/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED"
+    },
+    "B02-F03": {
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "cycle_raised": 2,
+      "history": [
+        {
+          "at": "2026-09-10T14:22:46Z",
+          "cycle": 2,
+          "event": "RAISED",
+          "note": "transcribed from cycle-02 findings.json by identifier and class, not by hand",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-14T11:01:56Z",
+          "cycle": 3,
+          "event": "ACCEPT",
+          "note": "accepted by Alex Zamurko 14 September; recorded at cycle 3 rather than backdated to cycle 2, on his ruling",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-16T07:49:53Z",
+          "cycle": 4,
+          "event": "DEMONSTRATED",
+          "note": "demonstrated by cycle 03: ledger identifier validity comes from the canonical grammar; cycle extraction is separate. Recorded at cycle 4 because the ACCEPT sits at cycle 3 and section 5 puts the demonstration in a later cycle. Alex Zamurko's ruling, 15 September.",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B02-F03 appears verbatim in cycle-02/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED"
+    },
+    "B02-F04": {
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "cycle_raised": 2,
+      "history": [
+        {
+          "at": "2026-09-10T14:22:46Z",
+          "cycle": 2,
+          "event": "RAISED",
+          "note": "transcribed from cycle-02 findings.json by identifier and class, not by hand",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-14T11:01:56Z",
+          "cycle": 3,
+          "event": "ACCEPT",
+          "note": "accepted by Alex Zamurko 14 September; recorded at cycle 3 rather than backdated to cycle 2, on his ruling",
+          "state": "OPEN"
+        }
+      ],
+      "repair_status": "IMPLEMENTED_AWAITING_DEMONSTRATION",
+      "requirement_id": "",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B02-F04 appears verbatim in cycle-02/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "OPEN"
+    },
+    "B02-F05": {
+      "class": "MISSING REQUIREMENT",
+      "cycle_raised": 2,
+      "history": [
+        {
+          "at": "2026-09-10T14:22:47Z",
+          "cycle": 2,
+          "event": "RAISED",
+          "note": "transcribed from cycle-02 findings.json by identifier and class, not by hand",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-14T11:01:57Z",
+          "cycle": 3,
+          "event": "ACCEPT",
+          "note": "accepted by Alex Zamurko 14 September; recorded at cycle 3 rather than backdated to cycle 2, on his ruling",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-16T07:51:33Z",
+          "cycle": 4,
+          "event": "DEMONSTRATED",
+          "note": "demonstrated by cycle 04: retained-pin hash overrides are rejected and excluded from replay",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B02-F05 appears verbatim in cycle-02/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED"
+    },
+    "B02-F06": {
+      "class": "MISSING REQUIREMENT",
+      "cycle_raised": 2,
+      "history": [
+        {
+          "at": "2026-09-10T14:22:47Z",
+          "cycle": 2,
+          "event": "RAISED",
+          "note": "transcribed from cycle-02 findings.json by identifier and class, not by hand",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-14T11:01:58Z",
+          "cycle": 3,
+          "event": "ACCEPT",
+          "note": "accepted by Alex Zamurko 14 September; recorded at cycle 3 rather than backdated to cycle 2, on his ruling",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-16T07:51:34Z",
+          "cycle": 4,
+          "event": "DEMONSTRATED",
+          "note": "demonstrated by cycle 04: demonstrated for recorded assignments: both loops and recorded versions are checked",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B02-F06 appears verbatim in cycle-02/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED"
+    },
+    "B02-F07": {
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "cycle_raised": 2,
+      "history": [
+        {
+          "at": "2026-09-10T14:22:47Z",
+          "cycle": 2,
+          "event": "RAISED",
+          "note": "transcribed from cycle-02 findings.json by identifier and class, not by hand",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-14T11:01:58Z",
+          "cycle": 3,
+          "event": "ACCEPT",
+          "note": "accepted by Alex Zamurko 14 September; recorded at cycle 3 rather than backdated to cycle 2, on his ruling",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-16T07:49:52Z",
+          "cycle": 4,
+          "event": "DEMONSTRATED",
+          "note": "demonstrated by cycle 03: freeze preserves the diff, results, approved plan and approval record, and checks 13 to 15 use those copies. Limit: the legacy live-file fallback remains. Recorded at cycle 4 because the ACCEPT sits at cycle 3 and section 5 puts the demonstration in a later cycle. Alex Zamurko's ruling, 15 September.",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B02-F07 appears verbatim in cycle-02/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED"
+    },
+    "B02-F08": {
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "cycle_raised": 2,
+      "history": [
+        {
+          "at": "2026-09-10T14:22:47Z",
+          "cycle": 2,
+          "event": "RAISED",
+          "note": "transcribed from cycle-02 findings.json by identifier and class, not by hand",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-14T11:01:59Z",
+          "cycle": 3,
+          "event": "ACCEPT",
+          "note": "accepted by Alex Zamurko 14 September; recorded at cycle 3 rather than backdated to cycle 2, on his ruling",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-16T07:51:31Z",
+          "cycle": 4,
+          "event": "DEMONSTRATED",
+          "note": "demonstrated by cycle 04: failed history queries withhold the exception",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B02-F08 appears verbatim in cycle-02/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED"
+    },
+    "B02-F09": {
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "cycle_raised": 2,
+      "history": [
+        {
+          "at": "2026-09-10T14:22:47Z",
+          "cycle": 2,
+          "event": "RAISED",
+          "note": "transcribed from cycle-02 findings.json by identifier and class, not by hand",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-14T11:02:00Z",
+          "cycle": 3,
+          "event": "ACCEPT",
+          "note": "accepted by Alex Zamurko 14 September; recorded at cycle 3 rather than backdated to cycle 2, on his ruling",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-16T07:49:52Z",
+          "cycle": 4,
+          "event": "DEMONSTRATED",
+          "note": "demonstrated by cycle 03: the module disclaims forced sequencing, proven authorship and an independent write boundary, and identifies the former claim as false. Recorded at cycle 4 because the ACCEPT sits at cycle 3 and section 5 puts the demonstration in a later cycle. Alex Zamurko's ruling, 15 September.",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B02-F09 appears verbatim in cycle-02/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED"
+    },
+    "B02-F10": {
+      "class": "UNTESTED RULE",
+      "cycle_raised": 2,
+      "history": [
+        {
+          "at": "2026-09-10T14:22:48Z",
+          "cycle": 2,
+          "event": "RAISED",
+          "note": "transcribed from cycle-02 findings.json by identifier and class, not by hand",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-14T11:02:00Z",
+          "cycle": 3,
+          "event": "ACCEPT",
+          "note": "accepted by Alex Zamurko 14 September; recorded at cycle 3 rather than backdated to cycle 2, on his ruling",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-16T07:49:51Z",
+          "cycle": 4,
+          "event": "DEMONSTRATED",
+          "note": "demonstrated by cycle 03: the prose scan takes its file list from covered(), including the four formerly omitted modules. Limit: scope and added controls only. Recorded at cycle 4 because the ACCEPT sits at cycle 3 and section 5 puts the demonstration in a later cycle. Alex Zamurko's ruling, 15 September.",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B02-F10 appears verbatim in cycle-02/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED"
+    },
+    "B03-F01": {
+      "class": "MISSING REQUIREMENT",
+      "cycle_raised": 3,
+      "history": [
+        {
+          "at": "2026-09-14T10:53:30Z",
+          "cycle": 3,
+          "event": "RAISED",
+          "note": "failure to calculate loop state is read as permission to open another cycle; UnknownEvent from replay escapes loop_state.main and the runner does not require a recognised CONTINUE",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-16T07:48:32Z",
+          "cycle": 3,
+          "event": "ACCEPT",
+          "note": "accepted on 15 September by repairing it while cycle 3 was the live cycle and cycle 4 did not exist; recorded at cycle 3 where the acceptance happened",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-16T07:51:30Z",
+          "cycle": 4,
+          "event": "DEMONSTRATED",
+          "note": "demonstrated by cycle 04: demonstrated for the reported controller failures and conflicting statuses",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B03-F01 appears verbatim in cycle-03/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED"
+    },
+    "B03-F02": {
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "cycle_raised": 3,
+      "history": [
+        {
+          "at": "2026-09-14T10:53:32Z",
+          "cycle": 3,
+          "event": "RAISED",
+          "note": "the cycle-03 prompt states the suites are in the target; target.json binds ten production artifacts and no test suites",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-16T07:48:33Z",
+          "cycle": 3,
+          "event": "ACCEPT",
+          "note": "accepted on 15 September by repairing it while cycle 3 was the live cycle and cycle 4 did not exist; recorded at cycle 3 where the acceptance happened",
+          "state": "OPEN"
+        },
+        {
+          "at": "2026-09-16T07:51:32Z",
+          "cycle": 4,
+          "event": "DEMONSTRATED",
+          "note": "demonstrated by cycle 04: demonstrated as an auxiliary evidence record; it is not an MC-2-enforced binding",
+          "state": "RESOLVED"
+        }
+      ],
+      "requirement_id": "",
+      "source": "CODEX_REVIEW",
+      "source_provenance": {
+        "added": "2026-09-18",
+        "authority": "Alex Zamurko, 18 September 2026: \"Backfill SOURCE as reconstructed provenance. The historical Codex origin is provable, so UNRECORDED unnecessarily loses information; mark the backfill explicitly as reconstructed.\"",
+        "basis": "the identifier B03-F02 appears verbatim in cycle-03/codex-output-raw.md, the frozen capture of what the reviewer said in the cycle that raised it.",
+        "limit": "under CONVENTION_ONLY the raw captures are detection that holds while nobody edits them. A value read from them inherits that and no more.",
+        "reconstructed": true,
+        "why": "this finding was raised before the source field existed. The field was introduced on 16 September closing B02-F11."
+      },
+      "state": "RESOLVED"
+    }
+  },
+  "review": "plan-review"
+}

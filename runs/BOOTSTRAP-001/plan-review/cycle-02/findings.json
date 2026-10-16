@@ -1,0 +1,90 @@
+{
+  "schema": "cycle-findings/1",
+  "review_result_status": "VALID",
+  "raw_finding_count": 15,
+  "finding_id_grammar": "^[A-Z]{0,2}\\d{2}-F\\d{2,3}$",
+  "cycle": 2,
+  "extracted_at": "2026-09-10T14:20:26Z",
+  "source": "captures/attempt-02/raw.md",
+  "source_attempt": 2,
+  "source_sha256": "b47f10f2d1a607694aca7598e2444579458778618a907a4c5e8d5f977a7409da",
+  "count": 15,
+  "zero_findings_asserted": false,
+  "findings": [
+    {
+      "id": "B01-F02",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "kind": "recurrence"
+    },
+    {
+      "id": "B01-F08",
+      "class": "MISSING REQUIREMENT",
+      "kind": "recurrence"
+    },
+    {
+      "id": "B01-F09",
+      "class": "MISSING REQUIREMENT",
+      "kind": "recurrence"
+    },
+    {
+      "id": "B01-F11",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "kind": "recurrence"
+    },
+    {
+      "id": "B01-F14",
+      "class": "MISSING REQUIREMENT",
+      "kind": "recurrence"
+    },
+    {
+      "id": "B02-F01",
+      "class": "MISSING REQUIREMENT",
+      "kind": "finding"
+    },
+    {
+      "id": "B02-F02",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "kind": "finding"
+    },
+    {
+      "id": "B02-F03",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "kind": "finding"
+    },
+    {
+      "id": "B02-F04",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "kind": "finding"
+    },
+    {
+      "id": "B02-F05",
+      "class": "MISSING REQUIREMENT",
+      "kind": "finding"
+    },
+    {
+      "id": "B02-F06",
+      "class": "MISSING REQUIREMENT",
+      "kind": "finding"
+    },
+    {
+      "id": "B02-F07",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "kind": "finding"
+    },
+    {
+      "id": "B02-F08",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "kind": "finding"
+    },
+    {
+      "id": "B02-F09",
+      "class": "CONTRADICTORY IMPLEMENTATION MAPPING",
+      "kind": "finding"
+    },
+    {
+      "id": "B02-F10",
+      "class": "UNTESTED RULE",
+      "kind": "finding"
+    }
+  ]
+}

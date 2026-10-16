@@ -1,0 +1,57 @@
+{
+  "review_type": "plan",
+  "run_id": "BOOTSTRAP-001",
+  "cycle": 3,
+  "governing_pins": [
+    "specs/implementation-review-protocol-v1.1.md"
+  ],
+  "governing_pin_hashes": {
+    "specs/implementation-review-protocol-v1.1.md": "296594a3c06cd2f9c66976c369b15804f39bbb2be37b5e62234d37fafd28d483"
+  },
+  "protocol_commit": "63939ecbe0f5271569bba09a203c8df534612e64",
+  "protocol_sha256": "296594a3c06cd2f9c66976c369b15804f39bbb2be37b5e62234d37fafd28d483",
+  "spec_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "frozen_at": "2026-09-14T09:20:20Z",
+  "plan_files": [
+    {
+      "path": "specs/evidence-schema-v1.0.md",
+      "sha256": "4203ba64bd5ba1db9cd56357c8bf9dd8e6efb419fab7f7635a415c272d3a739c"
+    },
+    {
+      "path": "scripts/validate_cycle.py",
+      "sha256": "ca37b358fa42c906e4b834d3adde345733d86e81a3a1b76b5798491b3cf5c0a0"
+    },
+    {
+      "path": "scripts/run_review.py",
+      "sha256": "de3b67e3197ef56b36ef0ee5c31da75828e57672da304b6f9ca250f1c0e751e2"
+    },
+    {
+      "path": "scripts/ledger.py",
+      "sha256": "8b3ed30c0b90370abbf0611774fc0d632684e0e6693a76870f5bbecd901d04d5"
+    },
+    {
+      "path": "scripts/loop_state.py",
+      "sha256": "d6bc7fb3cf5eea83961aebc1e52903e3bc386e4db22f2e8db08131c8582f0819"
+    },
+    {
+      "path": "scripts/bootstrap_gate.py",
+      "sha256": "187aa12e58884ee1b4e4b1c992c9e387d3f9f6cbd722e7afb0afbe00406341f5"
+    },
+    {
+      "path": "scripts/findings_format.py",
+      "sha256": "27dcf377b0014b3ac2563da61597675fc0bca9c95bce18d1b776bcb22ee53a90"
+    },
+    {
+      "path": "scripts/cycle_projection.py",
+      "sha256": "341b2ec46eb69aad9f1d95312f8aef235816f004562c62ee0ce177eae2196987"
+    },
+    {
+      "path": "scripts/authority.py",
+      "sha256": "c0a394d68ba5f13168dfc78b029ed6799f7bd16b25a21ba5f4ff4401e2efa6d6"
+    },
+    {
+      "path": "scripts/run_pins.py",
+      "sha256": "1b336f1e46ad0377503e27db6dfe340fb92cbe173393f7229183fe2e1c99e2a7"
+    }
+  ]
+}

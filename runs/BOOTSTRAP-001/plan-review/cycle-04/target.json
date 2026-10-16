@@ -1,0 +1,58 @@
+{
+  "review_type": "plan",
+  "run_id": "BOOTSTRAP-001",
+  "cycle": 4,
+  "governing_pins": [
+    "specs/implementation-review-protocol-v1.1.md"
+  ],
+  "governing_pin_hashes": {
+    "specs/implementation-review-protocol-v1.1.md": "296594a3c06cd2f9c66976c369b15804f39bbb2be37b5e62234d37fafd28d483"
+  },
+  "protocol_commit": "63939ecbe0f5271569bba09a203c8df534612e64",
+  "protocol_sha256": "296594a3c06cd2f9c66976c369b15804f39bbb2be37b5e62234d37fafd28d483",
+  "spec_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "frozen_at": "2026-09-15T18:02:58Z",
+  "plan_files": [
+    {
+      "path": "specs/evidence-schema-v1.0.md",
+      "sha256": "4203ba64bd5ba1db9cd56357c8bf9dd8e6efb419fab7f7635a415c272d3a739c"
+    },
+    {
+      "path": "scripts/validate_cycle.py",
+      "sha256": "8cd856a51b02ff5408ace42f5758eb2f927b6e01595702bda1ad5b7dd8e0f1b8"
+    },
+    {
+      "path": "scripts/run_review.py",
+      "sha256": "e14c0bce742ab1aa4b2486a0490664052e55acc4f783a38660aa18260278cb23"
+    },
+    {
+      "path": "scripts/ledger.py",
+      "sha256": "8b3ed30c0b90370abbf0611774fc0d632684e0e6693a76870f5bbecd901d04d5"
+    },
+    {
+      "path": "scripts/loop_state.py",
+      "sha256": "1d2c31d85b76a7d9019c512822451b9166dd5481f5fba9012455bf8126e03d67"
+    },
+    {
+      "path": "scripts/bootstrap_gate.py",
+      "sha256": "44e292a85ae299663e3713c403a04f34bc17d673fce6b31f5167b51a4190eb1c"
+    },
+    {
+      "path": "scripts/findings_format.py",
+      "sha256": "27dcf377b0014b3ac2563da61597675fc0bca9c95bce18d1b776bcb22ee53a90"
+    },
+    {
+      "path": "scripts/cycle_projection.py",
+      "sha256": "f822bd57d4f0643a4c7083d23b7082b003ba6bc6e558430841e41a617f0c9832"
+    },
+    {
+      "path": "scripts/authority.py",
+      "sha256": "c0a394d68ba5f13168dfc78b029ed6799f7bd16b25a21ba5f4ff4401e2efa6d6"
+    },
+    {
+      "path": "scripts/run_pins.py",
+      "sha256": "20a22852b3a2c3642ea8a2c0a01ae23e58aedf8e421e1135dc592fcfdb149753"
+    }
+  ],
+  "auxiliary_evidence_sha256": "59683cebf14d994711ac3dae326c9662ad558c768d9a9d70e19eebcf07b1120d"
+}
