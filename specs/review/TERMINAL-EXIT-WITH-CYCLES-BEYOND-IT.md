@@ -1,7 +1,10 @@
 # LOOP_STATUS can read CONVERGED while the ledger holds the finding OPEN
 
 26 September 2026, found while repairing C01-F01. Not raised by cycle-01's
-review, not repaired, and open for Alex Zamurko.
+review. **Ruled on by Alex Zamurko on 17 October 2026 and repaired the same
+day; the ruling and what it cost are at the foot of this note.** The question
+and the three positions are left standing above it, because a note that is
+rewritten to look like it always knew the answer is not a record of anything.
 
 ## What this note got wrong first
 
@@ -96,3 +99,82 @@ letting the walk continue to n=5.
 It is the same walk and a different rule. The ceiling is about how many cycles
 may be spent; this is about what a boundary means when evidence exists past
 it. Repairing one should not be taken to have settled the other.
+
+## The ruling, 17 October 2026
+
+Alex Zamurko:
+
+```text
+Preserve the historical terminal result, but ensure that an unauthorised
+continuation prevents downstream consumers from treating it as a valid
+approval or convergence result.
+
+Test this through the actual consumer path. If it already refuses safely,
+document the evidence and close the issue. If it does not, implement
+fail-closed behaviour.
+```
+
+That is position 1 with a condition attached, and the condition is the part
+this note could not have guessed: the exit stands, and a consumer must not be
+able to act on it.
+
+### What the test through the consumer path found
+
+It does not refuse safely, and did not.
+
+The package a human approves from reads the controller's machine-readable
+output. That output carried `governing_boundary`, `status`, `label`,
+`valid_cycle_count`, `sets_established`, `open`, `resolved` and `disputed`.
+The continuation was in none of them. It existed only in the prose printed
+after the status line, which is what this note said on 26 September in these
+words: it "informs a reader and not a caller".
+
+So a loop that reached CONVERGED at n=2 and then ran two further valid cycles
+produced an approval package headed CONVERGED, with the continuation visible
+only to someone who read the quoted controller output closely enough to notice
+a paragraph below the verdict. Three weeks of this note existing did not make
+that false. Nobody had run the consumer.
+
+### What was changed
+
+`scripts/loop_state.py` now carries `unauthorized_continuation` in its JSON:
+the boundary the loop terminated at, the status it terminated with, and the
+cycles run after it. It is `null` when there is none rather than absent,
+because an absent key reads as "this version does not report continuations",
+which a caller testing for presence cannot distinguish from "there is no
+continuation". The prose block and the JSON are now built from the same
+computed value, so the two cannot drift into disagreeing about one loop.
+
+`scripts/approval_package.py` refuses when it is present, with
+`LOOP_STATE: UNAUTHORIZED_CONTINUATION`, naming the boundary and the cycles.
+Refusing rather than annotating, because a package that is produced is a
+package that can be approved from, and his instruction names the failure as
+treating the exit "as a valid approval or convergence result".
+
+Nothing about the §6 exit itself changed. `LOOP_STATUS` still reports the
+first terminal exit, which is what "preserve the historical terminal result"
+requires. What is withheld is the document, not the history.
+
+### The evidence that it holds
+
+`scripts/test_approval_package.py` builds a fixture with four valid cycles
+whose finding is demonstrated at cycle 2, so the loop converges at n=2 with
+cycles 3 and 4 standing past it. Two controls over it:
+
+```text
+the controller reports the continuation in machine output, not only in prose
+the package refuses, and the refusal names cycle-03 and cycle-04
+```
+
+The second checks the named cycles appear, because a refusal that does not say
+which cycles are in question cannot be checked by the person reading it.
+
+### What is still true, and is the reason the tripwire stayed
+
+`scripts/test_ledger.py` carries `LOOP_STATUS is CONVERGED` as a tripwire
+rather than a tick, firing on any change in either direction. It did not fire
+on this work, and that is the evidence that the historical result was
+preserved. Had we quietly changed what the controller reports, it would have
+gone red. A tripwire that never fires is worth nothing; this one earned its
+place by staying silent about the one thing it was watching while everything
+around it changed.

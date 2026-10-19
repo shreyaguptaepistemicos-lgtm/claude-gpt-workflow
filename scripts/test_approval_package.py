@@ -44,6 +44,14 @@ def run(*args: str, cwd: Path, script: Path | None = None) -> subprocess.Complet
         cwd=str(cwd), capture_output=True, text=True)
 
 
+# The §6 exits that end a loop. Named here rather than imported from the
+# controller on purpose: a control that asks the thing it is testing what
+# counts as terminal would agree with it by construction, and this one needs
+# to fail if the controller's idea of terminal quietly changes.
+TERMINAL_FOR_TEST = {"CONVERGED", "MAX_4_REACHED",
+                     "HUMAN_ADJUDICATION_REQUIRED", "STALLED"}
+
+
 def with_register(root: Path, text: str | None = None) -> Path:
     """Give a fixture the register the real repository always has.
 
@@ -478,6 +486,93 @@ def main() -> int:
     else:
         ok("a review with valid cycles still reports its sets and says it "
            "established them")
+
+    # ---- an unauthorized continuation is not an approvable result ----
+    #
+    # specs/review/TERMINAL-EXIT-WITH-CYCLES-BEYOND-IT.md, 26 September 2026:
+    # the continuation block "is prose under the status line rather than part
+    # of the status, so it informs a reader and not a caller." That was written
+    # as an open question and left for three weeks. Alex Zamurko ruled on it on
+    # 17 October: preserve the historical terminal result, and ensure an
+    # unauthorised continuation prevents downstream consumers from treating it
+    # as a valid approval or convergence result, tested through the actual
+    # consumer path.
+    #
+    # Tested here because this package IS the consumer path. It is the document
+    # a human approves from, and it could not see a continuation at all.
+    _uc, _ucc = _TL.make_repo()
+    made.append(_uc)
+    shutil.copy2(SRC / "approval_package.py", _uc / "scripts")
+    shutil.copy2(SRC / "authority.py", _uc / "scripts")
+    with_register(_uc)
+    _ucrev = _uc / "runs" / "T-001" / "plan-review"
+    # Four valid cycles, with the finding raised in 1 and demonstrated in 2.
+    # Nothing is open at n=2, so the loop converges there, and cycles 3 and 4
+    # exist past a terminal exit that nobody cleared.
+    for _i in (1, 2, 3, 4):
+        _TL.make_cycle(_uc, _ucrev, _i, _ucc)
+    (_ucrev / "cycle-01" / "codex-output-raw.md").write_text(
+        "Finding ID: C01-F01\nClass: UNTESTED RULE\n", encoding="utf-8")
+    (_ucrev / "cycle-01" / "findings.json").write_text(json.dumps({
+        "schema": "cycle-findings/1", "cycle": 1, "count": 1,
+        "findings": [{"id": "C01-F01", "class": "UNTESTED RULE"}]}, indent=2),
+        encoding="utf-8")
+    _TL.ledger(_uc, "raise", "--review", str(_ucrev), "--cycle", "1",
+               "--id", "C01-F01", "--class", "UNTESTED RULE",
+               "--source", "CODEX_REVIEW")
+    _TL.ledger(_uc, "respond", "--review", str(_ucrev), "--cycle", "1",
+               "--id", "C01-F01", "--disposition", "ACCEPT", "--note", "fix")
+    _TL.ledger(_uc, "resolve", "--review", str(_ucrev), "--cycle", "2",
+               "--id", "C01-F01", "--evidence", "demonstrated")
+
+    # First the controller, because if it does not report the continuation in
+    # machine-readable form then the package below cannot possibly act on it,
+    # and the two failures would look identical from here.
+    _ucj = run("--review", "runs/T-001/plan-review", "--json", cwd=_uc,
+               script=_uc / "scripts" / "loop_state.py")
+    try:
+        _ucd = json.loads(_ucj.stdout)
+    except json.JSONDecodeError:
+        _ucd = None
+    if _ucd is None:
+        failures.append("the controller produced no readable JSON for a loop "
+                        "with cycles past a terminal exit:\n"
+                        + (_ucj.stdout + _ucj.stderr)[-300:])
+    elif _ucd.get("status") not in TERMINAL_FOR_TEST:
+        failures.append(
+            f"the fixture does not reach a terminal exit before its last "
+            f"cycle, so nothing below is\n  being tested. The controller says "
+            f"{_ucd.get('status')!r} at n="
+            f"{_ucd.get('governing_boundary')}.")
+    elif not _ucd.get("unauthorized_continuation"):
+        failures.append(
+            "the controller reports a terminal exit with valid cycles after "
+            "it and carries no\n  unauthorized_continuation in its machine "
+            "output. A caller cannot act on prose,\n  which is what the note "
+            "of 26 September said and what nobody had tested.")
+    else:
+        ok("the controller reports an unauthorized continuation in machine "
+           "output, not only in prose")
+
+    _ucp = Path(tempfile.mkdtemp()) / "uc.md"
+    _ucr = run("--run", "T-001", "--type", "plan", "--out", str(_ucp), cwd=_uc,
+               script=_uc / "scripts" / "approval_package.py")
+    _uco = _ucr.stdout + _ucr.stderr
+    if _ucr.returncode == 0:
+        failures.append(
+            "a package was produced for a loop that terminated and then ran "
+            "two more cycles.\n  The document a human approves from would "
+            "present that exit as the outcome while\n  evidence exists past "
+            "it that nobody authorized.")
+    elif "UNAUTHORIZED_CONTINUATION" not in _uco:
+        failures.append(f"the package refused, but not for the continuation:\n"
+                        f"{_uco[-400:]}")
+    elif "cycle-03" not in _uco or "cycle-04" not in _uco:
+        failures.append("the refusal does not name which cycles were run past "
+                        "the exit, so a reader\n  cannot check it")
+    else:
+        ok("refused: a terminal exit with unauthorized cycles after it is not "
+           "an approvable result, and the refusal names them")
 
     # Now invalidate only the cycle that carried the demonstration. The ledger
     # is untouched and still caches RESOLVED.

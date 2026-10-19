@@ -352,6 +352,47 @@ def main() -> int:
                 "\n\n  No category is printed from that. An absent set is not "
                 "an empty one, and a\n  package that showed them as empty "
                 "would be describing a boundary nobody walked.")
+        # Alex Zamurko, 17 October 2026: "Preserve the historical terminal
+        # result, but ensure that an unauthorised continuation prevents
+        # downstream consumers from treating it as a valid approval or
+        # convergence result. Test this through the actual consumer path. If
+        # it already refuses safely, document the evidence and close the
+        # issue. If it does not, implement fail-closed behaviour."
+        #
+        # It did not. This package is the consumer that matters, because it is
+        # the document a human approves from, and until today it could not see
+        # a continuation at all: the controller reported one in prose under the
+        # status line and said nothing about it in the machine output this
+        # reads. So a loop that terminated at n=2 and then ran two more cycles
+        # produced a package headed CONVERGED, with the continuation visible
+        # only to someone who read the quoted controller output carefully
+        # enough to notice a paragraph after the verdict.
+        #
+        # Refusing rather than annotating, because his instruction names the
+        # failure mode as treating it "as a valid approval or convergence
+        # result", and a package that is produced is a package that can be
+        # approved from. The §6 exit itself is preserved and quoted: the
+        # historical result is not rewritten, it is withheld from use until a
+        # person decides what the continuation means.
+        _uc = _proj.get("unauthorized_continuation")
+        if _uc:
+            raise Refused(
+                "LOOP_STATE: UNAUTHORIZED_CONTINUATION\n"
+                f"  The loop reached {_uc.get('terminal_status')} at "
+                f"n={_uc.get('terminal_at')}, and "
+                f"{len(_uc.get('cycles_after') or [])} further valid cycle(s) "
+                f"were run\n  after it: "
+                + ", ".join(_uc.get("cycles_after") or ["(none named)"]) +
+                "\n\n  §6's exits are mandatory, so the first one governs. "
+                "That terminal result stands\n  as the history of this loop "
+                "and is not rewritten here. What is withheld is this\n  "
+                "package, because a document assembled for an approval "
+                "decision would present\n  that exit as the loop's outcome "
+                "while evidence exists past it that no one\n  authorized.\n\n"
+                "  Record a human authorization in loop-authorizations.json "
+                "if another loop was\n  genuinely approved, or take the "
+                "terminal outcome to the gate as it stands.")
+
         by_state: dict[str, list[str]] = {
             "OPEN": list(_proj.get("open", [])),
             "RESOLVED": list(_proj.get("resolved", [])),

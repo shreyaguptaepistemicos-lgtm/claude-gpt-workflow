@@ -987,12 +987,42 @@ def _run(a) -> int:
     # SELF-F01. The same values the report below is built from, handed over
     # before any of it is formatted, so a caller reads the walk's own result
     # rather than a second opinion or a parsed paragraph.
+    # Alex Zamurko, 17 October 2026, on the terminal-exit question: "Preserve
+    # the historical terminal result, but ensure that an unauthorised
+    # continuation prevents downstream consumers from treating it as a valid
+    # approval or convergence result. Test this through the actual consumer
+    # path."
+    #
+    # The continuation was reported, in prose, printed after the status line.
+    # specs/review/TERMINAL-EXIT-WITH-CYCLES-BEYOND-IT.md said what that meant
+    # on 26 September and nobody tested it: the block "is prose under the
+    # status line rather than part of the status, so it informs a reader and
+    # not a caller." A caller asking for machine output received
+    # status CONVERGED and nothing whatever to say the loop had been continued
+    # without authority.
+    #
+    # The same values the prose is built from, computed once here and used by
+    # both, so the two cannot drift into disagreeing about the same loop.
+    _cont = None
+    if status in TERMINAL and n < n_latest:
+        _cont = {
+            "terminal_at": n,
+            "terminal_status": status,
+            "cycles_after": [f"cycle-{c:02d}" for c in valid[n:]],
+        }
+
     if getattr(a, "as_json", False):
         print(json.dumps({
             "governing_boundary": n,
             "status": status,
             "label": label,
             "valid_cycle_count": len(valid),
+            # null when there is none, rather than absent. An absent key reads
+            # as "this version does not report continuations", which is
+            # indistinguishable from "there is no continuation" to a caller
+            # that tests for presence, and that is the silent zero this layer
+            # keeps finding in itself.
+            "unauthorized_continuation": _cont,
             # SELF-F04. Carried on both branches so a caller asks one question,
             # "were the sets established", rather than guessing from whether
             # the keys are present. A caller that never looks at it still sees
@@ -1056,8 +1086,8 @@ def _run(a) -> int:
     # The cycles that should never have been opened. Reported rather than
     # silently absorbed, because the evidence in them was produced under a loop
     # that had already terminated and no one authorized restarting it.
-    if status in TERMINAL and n < n_latest:
-        after = [f"cycle-{c:02d}" for c in valid[n:]]
+    if _cont is not None:
+        after = _cont["cycles_after"]
         lines += ["",
                   f"UNAUTHORIZED CONTINUATION: the loop reached {status} at n={n} "
                   f"(cycle-{valid[n-1]:02d}).",
