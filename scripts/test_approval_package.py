@@ -168,122 +168,22 @@ def main() -> int:
     else:
         ok("refused: a review with no frozen cycle")
 
-    # ---- the real run ----
+    # The controls that build a package from BOOTSTRAP-001 moved to
+    # scripts/test_approval_package_record.py on 19 October 2026, after the
+    # export's CI failed on them with "could not build a package for
+    # BOOTSTRAP-001".
     #
-    # --out, to a temp path. Without it the generator writes to its default,
-    # which is the committed APPROVAL-PACKAGE.md of a finished review, so
-    # running this suite silently rewrote a real artifact — in CI invisibly,
-    # because the checkout is thrown away, and locally as a dirty working tree
-    # someone could commit without noticing. Found 18 September, by `git status`
-    # after a routine local CI run, not by anything here.
-    review_dir = REPO / "runs" / "BOOTSTRAP-001" / "plan-review"
-    canonical = review_dir / "APPROVAL-PACKAGE.md"
-    ledger = review_dir / "ledger.json"
-
-    # Everything the run owns, watched as a whole rather than one file of it.
-    def snapshot() -> dict[Path, bytes]:
-        return {p: p.read_bytes() for p in sorted(review_dir.rglob("*"))
-                if p.is_file()}
-
-    before = snapshot()
-    tmp_out = Path(tempfile.mkdtemp()) / "APPROVAL-PACKAGE.md"
-    r = run("--run", "BOOTSTRAP-001", "--type", "plan",
-            "--out", str(tmp_out), cwd=REPO)
-    if r.returncode != 0:
-        failures.append(f"could not build a package for BOOTSTRAP-001:\n"
-                        f"{r.stdout}{r.stderr}")
-        text = ""
-    else:
-        text = tmp_out.read_text(encoding="utf-8")
-        ok("a package is produced for a run with frozen cycles")
-
-    # The one thing it must never do.
+    # The export does carry that run, and none of its cycles can be valid
+    # there: MC-2 check 8 resolves the commit each cycle was frozen against,
+    # and those commits belong to this repository's history. The generator
+    # refuses, correctly, and a control expecting a package gets none. The
+    # control was asking a question only this repository can answer, in a
+    # place that cannot answer it.
     #
-    # This control used to compare ledger.json alone and pass, while the same
-    # call overwrote APPROVAL-PACKAGE.md in the directory next to it. The
-    # package is part of the record it describes, so the control was named for
-    # the right rule and watching one file of it. Comparing the whole review
-    # directory is what the sentence below actually claims.
-    after = snapshot()
-    changed = sorted({p for p in set(before) | set(after)
-                      if before.get(p) != after.get(p)})
-    if changed:
-        failures.append(
-            "building a package altered the review it describes: "
-            + ", ".join(p.relative_to(REPO).as_posix() for p in changed) +
-            "\n      It assembles a record for a human to decide from and must "
-            "write nothing\n      into that record. Pass --out.")
-    else:
-        ok("building a package writes nothing into the review it describes")
-
-    if canonical.read_bytes() != before.get(canonical):
-        failures.append("the committed APPROVAL-PACKAGE.md was modified by "
-                        "this suite")
-
-    if text and "decides nothing" not in text:
-        failures.append("the package does not say that it decides nothing, so "
-                        "a reader could take it for the decision")
-    elif text:
-        ok("the package states that it decides nothing")
-
-    # §7.2, in the protocol's own words: "Disputes and unresolved findings must
-    # be presented separately." One heading holding both satisfies a reader
-    # skimming for the word and defeats the requirement.
-    if text:
-        if "### Unresolved findings" not in text or "### Disputes" not in text:
-            failures.append("§7.2 requires disputes and unresolved findings "
-                            "presented separately; they are not two headings")
-        elif text.index("### Unresolved findings") == text.index("### Disputes"):
-            failures.append("disputes and unresolved findings share a heading")
-        else:
-            ok("§7.2: disputes and unresolved findings are separate headings")
-
-    # It must quote the owning tool, including when that tool refuses. A package
-    # that recomputed a refused figure would be a second controller, and the
-    # human would be reading this file instead of the record.
-    if text:
-        if "REFUSED" not in text or "development" not in text.lower():
-            failures.append(
-                "the controller refuses an authoritative loop result for this "
-                "run, and the package does not carry the refusal. Either it "
-                "recomputed the figure or it dropped it; both are worse than "
-                "quoting the refusal.")
-        else:
-            ok("a refusal by the owning tool is quoted, not worked around")
-
-    # The coverage table is checked against §7's list, so an item that stops
-    # being produced shows as absent. Verified by reading the list out of the
-    # generator rather than restating it here: a second copy would be free to
-    # disagree, which is the defect this whole layer keeps finding.
-    if text:
-        import importlib.util as il
-        spec = il.spec_from_file_location("_ap", SRC / "approval_package.py")
-        mod = il.module_from_spec(spec); spec.loader.exec_module(mod)
-        absent = [k for k in mod.SECTION_7_ITEMS if f"- [ ] {k}" in text]
-        listed = [k for k in mod.SECTION_7_ITEMS
-                  if f"- [x] {k}" in text or f"- [ ] {k}" in text]
-        if len(listed) != len(mod.SECTION_7_ITEMS):
-            failures.append(
-                f"the coverage table lists {len(listed)} of "
-                f"{len(mod.SECTION_7_ITEMS)} §7 items. An item missing from "
-                "the table cannot be seen to be missing from the package.")
-        elif not absent:
-            failures.append(
-                "every §7 item reports present. BOOTSTRAP-001 has no plan and "
-                "therefore no SPEC -> CODE -> TEST mapping, so a table with "
-                "nothing absent is not reporting, it is agreeing.")
-        else:
-            ok(f"all {len(listed)} §7 items appear in the coverage table, "
-               f"{len(absent)} marked absent")
-
-        for k in absent:
-            if f"*{k}*" not in text:
-                failures.append(f"§7 item {k!r} is marked absent and the "
-                                "package never says why")
-                break
-        else:
-            if absent:
-                ok("each absent §7 item carries a stated reason")
+    # This is the third time one file's controls have had to be separated by
+    # what they can establish where. The pattern is worth naming: a control
+    # that reads a real record belongs with the record, and a control that
+    # builds its own fixtures travels.
 
     # ---- SELF-F01: frozen cycles and no ledger is not zero findings ----
     # Alex Zamurko, 5 October: "Require the ledger whenever frozen review cycles
