@@ -74,6 +74,21 @@ jobs:
         if: ${{ !cancelled() }}
         run: python scripts/test_validate_cycle.py
 
+      # Alex Zamurko, 17 October 2026, on issue #3: "Add python
+      # scripts/dry_run.py as a required CI step and confirm successful
+      # execution from a clean checkout. Individual modules can pass while
+      # their combined workflow fails. This is the principal end-to-end
+      # integration test."
+      #
+      # It builds a protocol run from an empty directory using only fixtures
+      # it writes itself, so it establishes that the components compose. It
+      # does not rehearse the review: both reviewer replies are fixtures
+      # written in advance, and the run says so in its own output rather than
+      # leaving a green result to be read as more than it is.
+      - name: full protocol rehearsal, empty directory to decision
+        if: ${{ !cancelled() }}
+        run: python scripts/dry_run.py
+
       # Last deliberately: it asks whether anything above wrote into the
       # repository, so it has to run after all of them.
       - name: no suite wrote into the record

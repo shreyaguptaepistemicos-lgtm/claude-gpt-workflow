@@ -33,18 +33,33 @@ clean history with no connection to the original.
 - the citation extractor and the research-object extraction code
 - the manuscript corpus used to test them
 - product-specific research rules and their specifications
-- `runs/`, the real frozen review cycles
+- `runs/BOOTSTRAP-002` and `runs/BOOTSTRAP-003`
 
-The last of those is worth explaining. The review evidence from actual runs
-lives in cycle directories that also carry copies of the citation test suites,
-so including it would have exceeded the scope and been the largest leak risk
-in the exercise. The cost is that you are looking at the machinery rather than
-at a completed review. `dry_run.py` exists to close most of that gap.
+**Here, and the most useful thing in the repository:** `runs/BOOTSTRAP-001`,
+a complete four-cycle review of this machinery by a second party. Every
+frozen target, every reviewer reply verbatim, the finding ledger and the
+summaries. It is the difference between reading how a review is supposed to
+work and reading one that happened, including its unresolved findings.
 
-**A consequence worth knowing before you run anything:** several controls bind
-evidence to git commits. In the original repository those commits exist. Here
-they do not, so anything asking "was this cycle frozen at that commit" has
-nothing to resolve. That is the copy being a copy, not a defect.
+The two runs that are absent are absent whole. BOOTSTRAP-002's fourth cycle
+carries copies of the citation control suites, as evidence of what that cycle
+examined, and the cycle's recorded digests cover them. A partial copy with
+inconsistent hashes would undermine the verification principle this workflow
+exists to implement, so it is not here at all rather than here in pieces.
+
+**A consequence worth knowing before you run anything:** a frozen cycle binds
+to the commit it was frozen against, in the repository where the review was
+performed. This repository has its own history, so MC-2 check 8, "referenced
+git commit exists", cannot resolve those commits and reports the cycles as
+INVALID here. Every other check on them passes.
+
+That is the protocol working rather than failing. A review record cannot be
+moved into a different repository and still claim to be anchored there, and
+the gate says so instead of pretending otherwise. It does mean the loop
+controller reports no valid cycles for BOOTSTRAP-001 in this copy, so read the
+cycle directories as the historical record they are. Whether "this checkout
+cannot resolve that commit" should be reported as a distinct state from "that
+commit does not exist" is an open question, tracked in the issues.
 
 ## The order
 

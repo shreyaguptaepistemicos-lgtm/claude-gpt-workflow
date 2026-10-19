@@ -440,6 +440,45 @@ def main() -> int:
     else:
         ok("a demonstrated repair is reported as resolved")
 
+    # The positive half of SELF-F04's two refusals, which sit further down.
+    # It lives here because it needs a review whose cycles are valid, and this
+    # fixture has exactly that at this moment, before the next block
+    # invalidates one of them on purpose.
+    #
+    # It pointed at a real run until 17 October 2026, first BOOTSTRAP-003 and
+    # then briefly BOOTSTRAP-001, and both were the same mistake in two sizes.
+    # What the control needs is a review with valid cycles. Reaching for a real
+    # one ties it to whichever runs the checkout happens to carry, and a
+    # scope-limited copy of this tree carries different ones. Worse, no frozen
+    # cycle can be valid in such a copy at all: MC-2 check 8 resolves the
+    # commit the cycle was frozen against, and that commit belongs to this
+    # repository's history. The record there is not broken, it is bound, which
+    # is the property it is supposed to have. A control that reads boundness as
+    # brokenness was asking the wrong question of the wrong thing.
+    # No --development. The real runs this pointed at before were labelled
+    # bootstrap evidence and needed it; this fixture is a protocol run, and the
+    # controller refuses the flag for one, in those words: "labelling a
+    # protocol outcome as development evidence would understate it just as
+    # badly as the reverse overstates it." Carrying the flag over with the
+    # target was the kind of copy that looks harmless and asks a different
+    # question.
+    _rj = run("--review", "runs/T-001/plan-review", "--json",
+              cwd=_lr, script=_lr / "scripts" / "loop_state.py")
+    try:
+        _j3 = json.loads(_rj.stdout)
+    except json.JSONDecodeError:
+        _j3 = None
+    if _j3 is None or _j3.get("sets_established") is not True:
+        failures.append(
+            "a review with valid cycles does not report established sets, so "
+            "SELF-F04's two refusals below would pass on a controller that "
+            "never establishes anything:\n" + (_rj.stdout + _rj.stderr)[-300:])
+    elif "open" not in _j3:
+        failures.append("a review with valid cycles reports no `open` set")
+    else:
+        ok("a review with valid cycles still reports its sets and says it "
+           "established them")
+
     # Now invalidate only the cycle that carried the demonstration. The ledger
     # is untouched and still caches RESOLVED.
     (_rev / "cycle-02" / "codex-output-raw.md").write_text("", encoding="utf-8")
@@ -476,132 +515,21 @@ def main() -> int:
         ok("an invalidated demonstration is reported as unresolved, not from "
            "the ledger's cached RESOLVED")
 
-    # The positive, so the two refusals above cannot be "refuse everything".
-    # BOOTSTRAP-002 has four frozen cycles and a recorded ledger.
-    # --out again, because its package is tracked too.
-    b2_dir = REPO / "runs" / "BOOTSTRAP-002" / "plan-review"
-    b2_before = {p: p.read_bytes() for p in sorted(b2_dir.rglob("*"))
-                 if p.is_file()}
-    p2 = Path(tempfile.mkdtemp()) / "APPROVAL-PACKAGE.md"
-    r = run("--run", "BOOTSTRAP-002", "--type", "plan",
-            "--out", str(p2), cwd=REPO)
-    if any(p.read_bytes() != b for p, b in b2_before.items()):
-        failures.append("building BOOTSTRAP-002's package altered its review "
-                        "directory")
-    if r.returncode != 0:
-        failures.append(f"a run with frozen cycles and a recorded ledger "
-                        f"should produce a package:\n{r.stdout}{r.stderr}")
-    else:
-        t2 = p2.read_text(encoding="utf-8")
-        if "### Unresolved findings" not in t2:
-            failures.append(
-                "the package for a run with a ledger does not present "
-                "unresolved findings under their own heading")
-        else:
-            ok("a run with frozen cycles and a recorded ledger produces a "
-               "package")
-
-        # SELF-F01's own ruling: implementer-disclosed defects appear in the
-        # package, under their own heading, separately from reviewer findings.
-        # Read out of the register rather than restated here, so an entry that
-        # stops being shown shows up as missing instead of being agreed with.
-        #
-        # Guarded since 14 October. A malformed register made this line raise
-        # JSONDecodeError, so the suite crashed with a traceback and reported
-        # nothing about the twenty-odd controls that had already passed. A
-        # test that cannot survive bad input says the wrong thing at exactly
-        # the moment something is wrong, which is the same note already
-        # written against the missing_ok in test_probe_recovery.
-        _regp = REPO / "registers" / "implementer-disclosed.json"
-        try:
-            reg = json.loads(_regp.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as _e:
-            failures.append(
-                f"the implementer-disclosed register could not be read, so "
-                f"this suite can say\n  nothing about whether the package "
-                f"presents its entries: {_e}")
-            reg = {}
-        live = [k for k, v in reg.get("entries", {}).items()
-                if v.get("state") != "RESOLVED"]
-        required = ("description", "discovery_source", "affected_component",
-                    "severity", "state", "proposed_repair", "evidence")
-        thin = [f"{k}.{f}" for k, v in reg.get("entries", {}).items()
-                for f in required if not v.get(f)]
-        if thin:
-            failures.append(
-                "the register is missing fields the ruling names: "
-                + ", ".join(thin[:6]))
-        elif "## Implementer-disclosed defects" not in t2:
-            failures.append(
-                "the package has no implementer-disclosed section. A defect "
-                "disclosed outside the ledger and then absent from the package "
-                "is disclosed to nobody who matters.")
-        elif t2.index("## Implementer-disclosed defects") < t2.index("## Findings"):
-            failures.append("implementer-disclosed defects are presented above "
-                            "the reviewer findings; they must be separate and "
-                            "subordinate, not first")
-        elif [k for k in live if k not in t2]:
-            failures.append(
-                "the register holds unresolved entries the package does not "
-                "name: " + ", ".join(k for k in live if k not in t2))
-        else:
-            ok(f"{len(live)} implementer-disclosed defect(s) appear under "
-               f"their own heading, after the reviewer findings")
-
-        # The section as the package actually laid it out, split per entry, so
-        # the two controls below assert about one entry's own block rather
-        # than about the whole document. My earlier controls in this file
-        # passed by matching text that belonged to a different part of the
-        # page, which is the same defect as the one they were watching for.
-        _sec = t2.split("## Implementer-disclosed defects", 1)[-1]
-        _sec = _sec.split("## MC-2 conformance", 1)[0]
-        _blocks = {}
-        for _chunk in _sec.split("\n### ")[1:]:
-            _blocks[_chunk.split("\n", 1)[0].split(" ")[0].strip("*` ")] = _chunk
-
-        # The glossary paragraph under each entry must describe that entry's
-        # state. It used to print the REPAIRED_UNREVIEWED text unconditionally,
-        # so an OPEN defect with no repair carried a line reading "a repair has
-        # landed with controls behind it".
-        wrong_gloss = []
-        for k, v in reg.get("entries", {}).items():
-            st = v.get("state")
-            if st == "RESOLVED" or k not in _blocks:
-                continue
-            for other in reg.get("states", {}):
-                if other != st and f"`{other}` means" in _blocks[k]:
-                    wrong_gloss.append(f"{k} is {st} but its block explains {other}")
-        if wrong_gloss:
-            failures.append("an entry is glossed with a state it is not in: "
-                            + "; ".join(wrong_gloss))
-        elif not _blocks:
-            failures.append("no implementer-disclosed entry blocks were found "
-                            "to check, so this control proves nothing")
-        else:
-            ok("each disclosed defect is glossed with its own state, not with "
-               "REPAIRED_UNREVIEWED regardless")
-
-        # A resolved entry must still be named. Dropping it entirely leaves a
-        # reader following one disclosure across packages unable to tell
-        # resolution from deletion.
-        done = [k for k, v in reg.get("entries", {}).items()
-                if v.get("state") == "RESOLVED"]
-        if not done:
-            failures.append(
-                "the register currently holds no RESOLVED entry, so the "
-                "control for naming resolved entries did not exercise "
-                "anything. It is reported rather than passed.")
-        elif "### Resolved and no longer outstanding" not in _sec:
-            failures.append(
-                "resolved implementer-disclosed entries are dropped from the "
-                "package with no trace: " + ", ".join(sorted(done)))
-        elif [k for k in done if k not in _sec]:
-            failures.append(
-                "the resolved summary omits: "
-                + ", ".join(k for k in done if k not in _sec))
-        else:
-            ok(f"{len(done)} resolved disclosure(s) are still named, so "
-               f"resolution is distinguishable from deletion")
+    # The positive that keeps the refusals above from being "refuse
+    # everything" lives in scripts/test_approval_package_record.py, along with
+    # the controls over the implementer-disclosed section. Both examine
+    # BOOTSTRAP-002 and this repository's register, which a scope-limited copy
+    # of this tree does not carry, and both were moved out on 17 October 2026
+    # after an outside reviewer found this suite failing in such a copy for
+    # that reason and no other.
+    #
+    # Moved rather than taught to stand down. A control that covers less when
+    # its subject is absent, and says nothing about it, is the defect this
+    # whole layer exists to find; writing one into the file that guards the
+    # approval package would have been the joke writing itself. As a separate
+    # file it cannot happen quietly: test_ci_coverage.py requires every suite
+    # present to be invoked by CI, so while that file exists it runs, and if it
+    # stops existing that is a deletion somebody can see in a diff.
 
     # ---- SELF-F04: the controller's machine interface on the path where
     # nothing was computed, and this package's handling of it.
@@ -700,25 +628,8 @@ def main() -> int:
         ok("refused, not crashed: a frozen cycle whose record cannot be read "
            "produces a stated reason")
 
-    # And the positive half, so the two refusals above cannot be refusing
-    # everything: a real run still reports its sets and says it established
-    # them. Without this, removing the flag entirely would leave both green.
-    _r3 = run("--review", "runs/BOOTSTRAP-003/plan-review", "--json",
-              "--development", cwd=REPO, script=SRC / "loop_state.py")
-    try:
-        _j3 = json.loads(_r3.stdout)
-    except json.JSONDecodeError:
-        _j3 = None
-    if _j3 is None or _j3.get("sets_established") is not True:
-        failures.append(
-            "a review with valid cycles does not report established sets, so "
-            "the two controls above would pass on a controller that never "
-            "establishes anything")
-    elif "open" not in _j3:
-        failures.append("a review with valid cycles reports no `open` set")
-    else:
-        ok("a review with valid cycles still reports its sets and says it "
-           "established them")
+    # The positive half of these two refusals is above, against the fixture
+    # with valid cycles, and its comment says why it is not here.
 
     # ---- an unreadable register prevents approval: NOT COVERED HERE ----
     #
