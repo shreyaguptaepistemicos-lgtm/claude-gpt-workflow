@@ -41,6 +41,14 @@ import sys
 import tempfile
 from pathlib import Path
 
+# SELF-F16/F20/F25. The Windows console encodes at the locale code page,
+# cp1252, and this program holds characters it has no room for. Without
+# this the work completes and the print raises UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "scripts"
 SCHEMA = REPO / "specs" / "evidence-schema-v1.0.md"
@@ -72,7 +80,7 @@ def lay_run(run_dir: Path, run_id: str) -> None:
 
 
 def sh(*args: str, cwd: Path) -> subprocess.CompletedProcess:
-    return subprocess.run(args, cwd=str(cwd), capture_output=True, text=True)
+    return subprocess.run(args, cwd=str(cwd), capture_output=True, text=True, encoding="utf-8")
 
 
 def build_repo() -> tuple[Path, str]:

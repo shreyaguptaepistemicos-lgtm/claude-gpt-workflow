@@ -43,7 +43,7 @@ MUTATED_BYTES = b"# mutated by a run that was killed\nVALUE = 999\n"
 
 
 def sh(*args: str, cwd: Path) -> subprocess.CompletedProcess:
-    return subprocess.run(args, cwd=str(cwd), capture_output=True, text=True)
+    return subprocess.run(args, cwd=str(cwd), capture_output=True, text=True, encoding="utf-8")
 
 
 def main() -> int:
@@ -83,7 +83,7 @@ def main() -> int:
         return subprocess.run(
             [sys.executable, str(t / "_probe" / "mutate_repairs.py"),
              "NO-SUCH-FINDING"],
-            cwd=str(t), env=env, capture_output=True, text=True)
+            cwd=str(t), env=env, capture_output=True, text=True, encoding="utf-8")
 
     # ---- the reviewer's case: different bytes staged ----
     #
@@ -261,7 +261,7 @@ def main() -> int:
     target = clone / "repo"
     c = subprocess.run(["git", "clone", "--quiet", "--local",
                         "--no-hardlinks", str(REPO), str(target)],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8")
     if c.returncode != 0:
         failures.append(
             "could not clone the repository to test the interrupted-run "
@@ -283,19 +283,19 @@ def main() -> int:
         shutil.copy2(PROBE, target / "_probe" / "mutate_repairs.py")
         for cfg in (("user.email", "t@example.com"), ("user.name", "t")):
             subprocess.run(["git", "-C", str(target), "config", *cfg],
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, encoding="utf-8")
         subprocess.run(["git", "-C", str(target), "add", "-A"],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8")
         subprocess.run(["git", "-C", str(target), "commit", "-qm",
                         "the working-tree probe, which is what is under test"],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8")
 
         env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
         proc = subprocess.Popen(
             [sys.executable, str(target / "_probe" / "mutate_repairs.py"),
              "C01-F01"],
             cwd=str(target), env=env,
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8")
         # Long enough to be inside a mutation, short enough that the run has
         # not finished. The tree assertion below does not depend on hitting
         # that window precisely: if the run completed, the tree is clean
@@ -315,7 +315,7 @@ def main() -> int:
             killed = True
 
         st = subprocess.run(["git", "-C", str(target), "status", "--porcelain"],
-                            capture_output=True, text=True)
+                            capture_output=True, text=True, encoding="utf-8")
         dirty = [ln[3:].strip() for ln in st.stdout.splitlines()
                  if ln.strip() and not ln.strip().startswith("??")]
         if dirty:
@@ -331,7 +331,7 @@ def main() -> int:
         # The abandoned checkout is the expected residue, and the next run
         # removing it is what makes that acceptable rather than a new leak.
         wt = subprocess.run(["git", "-C", str(target), "worktree", "list",
-                             "--porcelain"], capture_output=True, text=True)
+                             "--porcelain"], capture_output=True, text=True, encoding="utf-8")
         before = [l for l in wt.stdout.splitlines()
                   if l.startswith("worktree ") and "epistemicos-probe-" in l]
 
@@ -354,7 +354,7 @@ def main() -> int:
         refused = subprocess.run(
             [sys.executable, str(target / "_probe" / "mutate_repairs.py"),
              "NO-SUCH-FINDING"],
-            cwd=str(target), env=env, capture_output=True, text=True)
+            cwd=str(target), env=env, capture_output=True, text=True, encoding="utf-8")
         _said = refused.stdout + refused.stderr
         if refused.returncode == 0 or "another run holds" not in _said:
             failures.append(
@@ -406,7 +406,7 @@ def main() -> int:
         else:
             wt2 = subprocess.run(["git", "-C", str(target), "worktree", "list",
                                   "--porcelain"], capture_output=True,
-                                 text=True)
+                                 text=True, encoding="utf-8")
             after = [l for l in wt2.stdout.splitlines()
                      if l.startswith("worktree ") and "epistemicos-probe-" in l]
             gone = [l.split(" ", 1)[1] for l in before if l not in after]
@@ -442,9 +442,9 @@ def main() -> int:
         second = subprocess.run(
             [sys.executable, str(target / "_probe" / "mutate_repairs.py"),
              "NO-SUCH-FINDING"],
-            cwd=str(target), env=env, capture_output=True, text=True)
+            cwd=str(target), env=env, capture_output=True, text=True, encoding="utf-8")
         wt2 = subprocess.run(["git", "-C", str(target), "worktree", "list",
-                              "--porcelain"], capture_output=True, text=True)
+                              "--porcelain"], capture_output=True, text=True, encoding="utf-8")
         after = [l for l in wt2.stdout.splitlines()
                  if l.startswith("worktree ") and "epistemicos-probe-" in l]
         _said = second.stdout + second.stderr
@@ -611,7 +611,7 @@ def main() -> int:
     first = subprocess.Popen([sys.executable, "-u", _probe_py],
                              cwd=str(_t), env=_env,
                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                             text=True)
+                             text=True, encoding="utf-8")
     try:
         # Wait for it to be genuinely under way: holding the lock and having
         # made its checkout. Starting the second run before that would be
@@ -635,7 +635,7 @@ def main() -> int:
         else:
             second = subprocess.run([sys.executable, "-u", _probe_py],
                                     cwd=str(_t), env=_env,
-                                    capture_output=True, text=True)
+                                    capture_output=True, text=True, encoding="utf-8")
             _said = second.stdout + second.stderr
             _after = sorted((_t / ".probe-sandboxes").glob(
                 "epistemicos-probe-*"))

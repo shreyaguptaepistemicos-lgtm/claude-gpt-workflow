@@ -46,12 +46,18 @@ jobs:
       - name: test_convert_protocol.py
         if: ${{ !cancelled() }}
         run: python scripts/test_convert_protocol.py
+      - name: test_credential_check.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_credential_check.py
       - name: test_encoding_discipline.py
         if: ${{ !cancelled() }}
         run: python scripts/test_encoding_discipline.py
       - name: test_exit_criteria.py
         if: ${{ !cancelled() }}
         run: python scripts/test_exit_criteria.py
+      - name: test_fixture_sources.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_fixture_sources.py
       - name: test_interfaces.py
         if: ${{ !cancelled() }}
         run: python scripts/test_interfaces.py
@@ -67,9 +73,15 @@ jobs:
       - name: test_protocol_pin.py
         if: ${{ !cancelled() }}
         run: python scripts/test_protocol_pin.py
+      - name: test_reconcile_blocking.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_reconcile_blocking.py
       - name: test_run_review.py
         if: ${{ !cancelled() }}
         run: python scripts/test_run_review.py
+      - name: test_system_identity.py
+        if: ${{ !cancelled() }}
+        run: python scripts/test_system_identity.py
       - name: test_validate_cycle.py
         if: ${{ !cancelled() }}
         run: python scripts/test_validate_cycle.py

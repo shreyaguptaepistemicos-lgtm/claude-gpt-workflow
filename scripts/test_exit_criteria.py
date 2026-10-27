@@ -62,6 +62,14 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "scripts"
 
+# For _this_repository() only. The fixtures need to know which repository
+# this checkout points at, so that the positive controls agree with it and
+# the negative ones can disagree deliberately. Asked of the checker rather
+# than written down here: a constant would be wrong in anybody else's clone,
+# and the two would then disagree about the thing being tested.
+sys.path.insert(0, str(SRC))
+import exit_criteria  # noqa: E402
+
 # One blocking item, so EC-1 and EC-4 have something to say. Each control
 # overrides the part it is about.
 BLOCKING = {
@@ -95,7 +103,9 @@ def main() -> int:
         print(f"  [ok] {m}")
 
     def build(blocking: dict | None = None,
-              digest: str | None = None) -> tuple[Path, str]:
+              digest: str | None = None,
+              dev_run: bool = False,
+              no_controller: bool = False) -> tuple[Path, str]:
         """A minimal repository the checker can run against.
 
         Returns the root and its HEAD commit. It is a real git repository
@@ -111,6 +121,39 @@ def main() -> int:
         shutil.copy2(SRC / "exit_criteria.py",
                      t / "scripts" / "exit_criteria.py")
 
+        # SELF-F31. EC-4 now asks the controller whether the run a named
+        # cycle belongs to is a protocol run, so the controller has to be
+        # here for that question to be asked of the real rule rather than of
+        # a stub written to match the matcher.
+        #
+        # Four files, which is loop_state.py and what it imports. None of
+        # them is a test_*.py, so EC-2's glob is untouched and these fixtures
+        # do not suddenly start running suites.
+        if dev_run:
+            if not no_controller:
+                for mod in ("loop_state.py", "cycle_projection.py",
+                            "run_pins.py", "authority.py"):
+                    shutil.copy2(SRC / mod, t / "scripts" / mod)
+            # A run marked exactly as the three real ones are, with one
+            # cycle directory so the "names a cycle that does not exist"
+            # check above it passes and this one is what the item reaches.
+            _cyc = t / "runs" / "DEV-001" / "plan-review" / "cycle-01"
+            _cyc.mkdir(parents=True)
+            (_cyc / "codex-output-raw.md").write_text(
+                "X01-F01 was examined here.\n", encoding="utf-8")
+            (t / "runs" / "DEV-001" / "run.json").write_text(json.dumps({
+                # A plain hyphen where the real records carry an em dash.
+                # run_pins.run_kind reads the marker, not the punctuation,
+                # and this suite configures no console, so a non-ASCII
+                # literal here is a file that cannot print itself on a
+                # Windows code page. test_encoding_discipline.py caught it
+                # on the first push.
+                "bootstrap_review": "EXEMPT - BOOTSTRAP / DEVELOPMENT "
+                                    "EVIDENCE, NOT_A_PROTOCOL_CYCLE",
+                "mc1_enforcement": "CONVENTION_ONLY",
+                "max_cycles": 4,
+            }, indent=2), encoding="utf-8")
+
         doc = t / "specs" / "BOOTSTRAP-EXIT-CRITERIA.md"
         doc.write_text("# fixture criteria\n", encoding="utf-8")
         real = hashlib.sha256(doc.read_bytes()).hexdigest()
@@ -124,12 +167,25 @@ def main() -> int:
         (t / "registers" / "implementer-disclosed.json").write_text(
             json.dumps(REGISTER, indent=2), encoding="utf-8")
 
+        # An origin, because since 20 October EC-4 asks which repository a
+        # run belongs to and answers it from this checkout's remote. A
+        # fixture with no remote is a repository that cannot say who it is,
+        # which is a real state and a different one from the state these
+        # controls are about: every one of them reported "repository is not
+        # established" and none reached the thing it was testing.
+        #
+        # The remote names the repository the fixtures claim to be, taken
+        # from the real checkout rather than written down, so these controls
+        # pass in anybody's clone and not only in this one.
+        _origin = f"https://github.com/{exit_criteria._this_repository()}.git"
         for args in (("init", "-q"), ("config", "user.email", "t@t"),
-                     ("config", "user.name", "t"), ("add", "-A"),
+                     ("config", "user.name", "t"),
+                     ("remote", "add", "origin", _origin),
+                     ("add", "-A"),
                      ("commit", "-qm", "fixture")):
             subprocess.run(["git", "-C", str(t), *args], capture_output=True)
         head = subprocess.run(["git", "-C", str(t), "rev-parse", "HEAD"],
-                              capture_output=True, text=True).stdout.strip()
+                              capture_output=True, text=True, encoding="utf-8").stdout.strip()
         return t, head
 
     def sweep(t: Path, text: str) -> None:
@@ -145,7 +201,7 @@ def main() -> int:
     def run(t: Path) -> str:
         r = subprocess.run([sys.executable,
                             str(t / "scripts" / "exit_criteria.py")],
-                           cwd=str(t), capture_output=True, text=True)
+                           cwd=str(t), capture_output=True, text=True, encoding="utf-8")
         return r.stdout + r.stderr
 
     def block(out: str, cid: str) -> str:
@@ -288,6 +344,40 @@ def main() -> int:
     refuses("a reference to a cycle that does not exist",
             run(t), "EC-4", "names a cycle that does not exist")
 
+    # SELF-F31, 27 October. The gap that made the four checks around this one
+    # insufficient together.
+    #
+    # Every other test EC-4 applies to a named cycle is true of a development
+    # cycle: the reference has the right shape, the directory exists, the
+    # cycle passes MC-2 (all twelve real ones do, EC-3 reports it on every
+    # run), and the preserved review names the item. So writing
+    # "BOOTSTRAP-003/cycle-04" into the field would have moved this condition
+    # to PASS on evidence Alex Zamurko ruled on 10 September can never count
+    # as authoritative.
+    #
+    # Found by a reviewer pushing back on a claim rather than by anything
+    # failing: the claim was that the field can only be filled by a protocol
+    # cycle, and the honest answer was that nothing enforced it.
+    t, _ = build(blocking=examined("DEV-001/cycle-01"), dev_run=True)
+    refuses("a cycle from a run marked NOT_A_PROTOCOL_CYCLE is not an "
+            "independent examination",
+            run(t), "EC-4", "NOT_A_PROTOCOL_CYCLE")
+
+    # The half the first version of that check got wrong, named by a
+    # reviewer the same afternoon.
+    #
+    # Matching the controller's refusal text refuses a development run and
+    # lets every other outcome through. Here the cycle directory exists and
+    # the controller is absent, so there is no refusal to match and no
+    # classification either. The old form read that as "not development" and
+    # carried on; a condition about independent verification must treat not
+    # established as not acceptable.
+    t, _ = build(blocking=examined("DEV-001/cycle-01"), dev_run=True,
+                 no_controller=True)
+    refuses("a cycle whose run classification cannot be established is "
+            "refused, not waved through",
+            run(t), "EC-4", "not established as a protocol cycle")
+
     t, _ = build(blocking=examined(None))
     last = run(t)
     refuses("an unexamined item is reported, not quietly skipped",
@@ -309,7 +399,12 @@ def main() -> int:
                  digest: str | None = None, write_log: bool = True,
                  purpose: str = "repair_verification",
                  api_sha: str = "", api_conclusion: str = "",
-                 api_job: str = "sweep") -> None:
+                 api_job: str = "sweep",
+                 # The repository, on both sides, so a control can make the
+                 # record and GitHub's reply disagree about whose run it was,
+                 # and another can make them agree on a repository that is
+                 # not this one.
+                 repo: str = "", api_repo: str = "") -> None:
         # The log mentions what it covers by default, because since 15 October
         # coverage is read out of the preserved output rather than out of the
         # declaration. A body that named nothing would make every positive
@@ -341,8 +436,15 @@ def main() -> int:
             return {"path": f"evidence/99-{name}.json",
                     "sha256": hashlib.sha256(p.read_bytes()).hexdigest()}
 
+        # The repository this checkout actually points at, so the positive
+        # controls pass for the reason they claim rather than because the
+        # check was not reached. Read from git rather than written in, since
+        # a constant here would be wrong in anybody else's clone.
+        _mine = exit_criteria._this_repository() or "owner/repo"
         _r = _raw("run", {"head_sha": api_sha or commit,
                           "html_url": "https://example.invalid",
+                          "repository": {"full_name": api_repo or repo
+                                         or _mine},
                           "status": "completed", "conclusion": "success"})
         # api_job exists so a control can make the reply contain a different
         # job from the one the record names. The record always says "sweep";
@@ -355,6 +457,7 @@ def main() -> int:
             "runs": [{
                 "run_id": "99", "url": "https://example.invalid",
                 "commit": commit, "job": "sweep", "conclusion": "success",
+            "repository": repo or _mine,
                 "log": "evidence/run.txt",
                 "log_sha256": digest or real,
                 "covers": covers,
@@ -414,6 +517,38 @@ def main() -> int:
     refuses("coverage claimed by the record and absent from its output",
             run(t), "EC-4", "declared coverage its output does not support")
 
+    # The other side of the same refusal, and the one it got wrong. SELF-F29.
+    #
+    # A sweep exercises far more than the blocking list: run 40112505177 names
+    # 87 repairs, of which five are blocking. Declaring one of the other 82 is
+    # a true claim its output plainly supports. The refusal was computed by
+    # subtracting the blocking-filtered set, so every one of those was
+    # reported as coverage the output does not support, and the report would
+    # have been read as a problem with the run. Without this control the
+    # refusal above is satisfied by a check that rejects any claim outside the
+    # blocking list, which is not what it is named for.
+    t, head = build()
+    evidence(t, head, ["X01-F01", "Z09-F02"],
+             body="  [caught] X01-F01  a repair\n"
+                  "  [caught] Z09-F02  a repair nobody classified as blocking\n")
+    out = block(run(t), "EC-4")
+    # The identifier carries the mutation's expected text. SELF-F15b: 86 of
+    # the 87 entries match on prose, so an edit to a message that reads badly
+    # silently stops a repair being watched. This one matches on a token that
+    # exists for no other purpose and that nobody will reword.
+    if "declared coverage its output does not support" in out:
+        failures.append("[EC4-COVERAGE] a declared finding the output names "
+                        "was reported as unsupported\nbecause it is not on "
+                        "the blocking list. The output is what the message "
+                        "is about:\n" + out)
+    elif "were exercised by" not in out:
+        failures.append("[EC4-COVERAGE] declaring a non-blocking finding the "
+                        "output names stopped the\nblocking item from being "
+                        "counted:\n" + out)
+    else:
+        ok("a declared finding the output names is supported, whether or not "
+           "it is blocking")
+
     # "Preserve failure-run evidence separately from successful
     #  repair-verification evidence."
     #
@@ -460,6 +595,50 @@ def main() -> int:
     refuses("a record naming a job GitHub's reply does not contain",
             run(t), "EC-4", "contains no job named")
 
+    # ---- the wrong repository, which is the last of the six he named ----
+    #
+    # Alex Zamurko, 16 October 2026, listing what EC-4 should refuse: "wrong
+    # repository, wrong commit, wrong job, wrong conclusion, missing or
+    # altered log, unsupported finding coverage." Five were written then and
+    # this was not, for four days, while the condition reported PASS.
+    #
+    # Two ways it goes wrong and they are different. The record and the reply
+    # can disagree about whose run it was, which is a record describing
+    # something that did not happen. Or they can agree perfectly on a
+    # repository that is not this one, which is a real run, genuinely green,
+    # independently executed, belonging to somebody else.
+    t, head = build()
+    evidence(t, head, ["X01-F01"], api_repo="someone-else/their-fork")
+    refuses("a record whose repository GitHub's own reply contradicts",
+            run(t), "EC-4", "GitHub's own reply says")
+
+    # The second is the dangerous one. A fork shares commits, so the commit
+    # matches. Workflows get copied, so the job name matches. The conclusion
+    # is genuine because the run genuinely succeeded. Every other check in
+    # EC-4 passes on it.
+    t, head = build()
+    evidence(t, head, ["X01-F01"], repo="someone-else/their-fork",
+             api_repo="someone-else/their-fork")
+    refuses("a genuine green run in somebody else's repository",
+            run(t), "EC-4", "A fork shares")
+
+    # SELF-F30. The same comparison has a second cause, and until today the
+    # message named only the first.
+    #
+    # Transferring this repository to an organisation moves the remote while
+    # GitHub's preserved replies go on naming the owner at the time of the
+    # run. Every record in the history then disagrees with the checkout at
+    # once, EC-4 falls to no usable evidence, and the only explanation
+    # offered is a fork. The fixture is the same one as above, because the
+    # two situations are the same comparison; what this asks is whether the
+    # refusal tells a reader which of them they are in and what to do.
+    t, head = build()
+    evidence(t, head, ["X01-F01"], repo="someone-else/their-fork",
+             api_repo="someone-else/their-fork")
+    refuses("a repository that moved reads as a fork unless the refusal "
+            "says otherwise",
+            run(t), "EC-4", "transferred or renamed")
+
     # "Match evidence to an explicitly frozen candidate SHA, not
     #  indiscriminately to the latest repository HEAD... Committing evidence
     #  after the tested commit changes HEAD, potentially invalidating the
@@ -478,7 +657,7 @@ def main() -> int:
     subprocess.run(["git", "-C", str(t), "commit", "-qm", "record the "
                     "evidence, which moves HEAD"], capture_output=True)
     moved = subprocess.run(["git", "-C", str(t), "rev-parse", "HEAD"],
-                           capture_output=True, text=True).stdout.strip()
+                           capture_output=True, text=True, encoding="utf-8").stdout.strip()
     out = block(run(t), "EC-4")
     if moved == head:
         failures.append("the fixture did not actually move HEAD, so the "

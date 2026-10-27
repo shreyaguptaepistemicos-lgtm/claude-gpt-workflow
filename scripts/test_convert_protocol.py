@@ -54,7 +54,7 @@ def run(path: Path) -> subprocess.CompletedProcess:
     return subprocess.run(
         [sys.executable, str(CONVERTER), "--docx", str(path),
          "--out", str(path.parent / "out.md"), "--terminal", TERMINAL, "--dry-run"],
-        capture_output=True, text=True)
+        capture_output=True, text=True, encoding="utf-8")
 
 
 def main() -> int:

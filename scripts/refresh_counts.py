@@ -53,6 +53,14 @@ import subprocess
 import sys
 from pathlib import Path
 
+# SELF-F16/F20/F25. The Windows console encodes at the locale code page,
+# cp1252, and this program holds characters it has no room for. Without
+# this the work completes and the print raises UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 REPO = Path(__file__).resolve().parent.parent
 SUITES = ("test_validate_cycle", "test_run_review", "test_ledger",
           "test_bootstrap_gate", "test_interfaces")
@@ -167,7 +175,7 @@ def main() -> int:
 
     for name in SUITES:
         out = subprocess.run([sys.executable, f"scripts/{name}.py"],
-                             cwd=str(REPO), capture_output=True, text=True)
+                             cwd=str(REPO), capture_output=True, text=True, encoding="utf-8")
         text = out.stdout + out.stderr
         n = text.count("[ok]")
         counts[f"scripts/{name}.py"] = n

@@ -38,6 +38,14 @@ sys.path.insert(0, str(SRC))
 # more readily than two.
 import run_pins  # noqa: E402
 
+# SELF-F16/F20/F25. The Windows console encodes at the locale code page,
+# cp1252, and this program holds characters it has no room for. Without
+# this the work completes and the print raises UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 
 def write_lf(p: Path, text: str) -> None:
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -50,7 +58,7 @@ def sha256_file(p: Path) -> str:
 
 
 def sh(*args: str, cwd: Path) -> subprocess.CompletedProcess:
-    return subprocess.run(args, cwd=str(cwd), capture_output=True, text=True)
+    return subprocess.run(args, cwd=str(cwd), capture_output=True, text=True, encoding="utf-8")
 
 
 def make_repo() -> tuple[Path, str, str]:
@@ -152,7 +160,7 @@ def build(root: Path, commit: str, tree: str, kind: str = "plan",
 
 def run(root: Path, cycle: Path) -> tuple[int, str]:
     r = subprocess.run([sys.executable, str(root / "scripts" / "validate_cycle.py"),
-                        str(cycle)], capture_output=True, text=True)
+                        str(cycle)], capture_output=True, text=True, encoding="utf-8")
     return r.returncode, r.stdout
 
 

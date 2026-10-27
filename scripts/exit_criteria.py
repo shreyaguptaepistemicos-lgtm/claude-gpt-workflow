@@ -33,6 +33,7 @@ import json
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -53,7 +54,7 @@ def runs() -> list[Path]:
 
 def tool(*args: str) -> tuple[int, str]:
     r = subprocess.run([sys.executable, *args], cwd=str(REPO),
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8")
     return r.returncode, (r.stdout or "") + (r.stderr or "")
 
 
@@ -167,10 +168,34 @@ def ec1() -> Condition:
                     "Either no\nfinding has been classified yet, or the file "
                     "is wrong.")
         elif _open:
+            # "Until one has" read as though an examination could come from
+            # the reviews that exist. It cannot. All three bootstrap runs are
+            # marked NOT_A_PROTOCOL_CYCLE in their run.json, and Alex
+            # Zamurko's instruction of 10 September is that such evidence
+            # "can never accidentally count as authoritative protocol
+            # evidence". So no further work inside BOOTSTRAP-001, 002 or 003
+            # can fill independently_examined_in_cycle, and a reader could
+            # spend a long time discovering that.
+            #
+            # Measured rather than argued: scripts/reconcile_blocking.py
+            # walks all three with --development and reports 0 demonstrated,
+            # 7 open, 0 disputed, and 3 in the implementer-disclosed register
+            # which by its own membership rule has no cycle identifier at
+            # all. Zero of the ten are closable from here.
             c.check(FAIL, f"{len(_open)} of {len(blocking)} blocking "
                           f"defect(s) are still open",
-                    ", ".join(_open) + "\nEach has a repair that no reviewer "
-                    "has examined. Until one has, this\ncondition is not met.")
+                    ", ".join(_open) +
+                    "\n\nNone of these can be closed by the reviews that "
+                    "exist. All three bootstrap\nruns are marked "
+                    "NOT_A_PROTOCOL_CYCLE, so their cycles are development "
+                    "evidence and\ncannot supply an independent examination. "
+                    "What this condition is waiting for\nis a protocol "
+                    "cycle, which has never been run.\n\n"
+                    "Alex Zamurko, 26 October: \"One independent review and "
+                    "explicit human approval\nare required before MVP "
+                    "acceptance.\" That is this condition.\n\n"
+                    "scripts/reconcile_blocking.py shows the position of "
+                    "each one.")
         else:
             c.check(PASS, f"all {len(blocking)} blocking defect(s) closed")
 
@@ -278,17 +303,49 @@ def ec2() -> Condition:
         "EC-2", "reliable verification",
         "whether the mutation set covers the repairs that matter")
 
+    # Timed per suite, and reported with the slowest named. Measured
+    # 27 October, and it is one suite rather than twenty-five evenly slow
+    # ones:
+    #
+    #   700.6s  test_prompts.py        45% of this condition on its own
+    #   244.6s  test_ledger.py
+    #   204.5s  test_run_review.py
+    #    82.0s  test_bootstrap_gate.py
+    #   the other 21 together            under 110s
+    #
+    # test_prompts.py verifies each prompt's stated control counts by running
+    # every suite the prompt names and counting its [ok] lines. So this loop
+    # runs them all, and then one of them runs most of them again. The same
+    # work twice inside one command.
+    #
+    # Left alone deliberately. The obvious repair is a shared cache of
+    # per-suite results, and a cache that went stale would make every check
+    # downstream pass for a reason other than the one it names, which is the
+    # defect this whole layer keeps finding in itself. The other repair is
+    # running the loop in parallel, and several suites write into _probe and
+    # the pin fixtures, so that trades a known cost for an intermittent one.
+    # Neither is worth it for a command that is slow rather than wrong.
+    # Written down so the next person to notice the wait finds the
+    # measurement rather than starting it over.
     suites = sorted(SCRIPTS.glob("test_*.py"))
-    red = []
+    red, cost = [], []
     for s in suites:
+        _t = time.monotonic()
         rc, _ = tool(str(s))
+        _d = time.monotonic() - _t
+        cost.append((_d, s.name))
         if rc != 0:
             red.append(s.name)
+        print(f"    {_d:7,.1f}s  {s.name}"
+              f"{'  RED' if rc != 0 else ''}", flush=True)
+    cost.sort(reverse=True)
+    _worst = "slowest: " + ", ".join(f"{n} {d:,.0f}s" for d, n in cost[:4])
+    _worst += f"\nall {len(suites)} together: {sum(d for d, _ in cost):,.0f}s"
     if red:
         c.check(FAIL, f"{len(red)} of {len(suites)} suite(s) red",
-                ", ".join(red))
+                ", ".join(red) + "\n" + _worst)
     else:
-        c.check(PASS, f"all {len(suites)} suites pass")
+        c.check(PASS, f"all {len(suites)} suites pass", _worst)
 
     # The sweep is not run here: it takes hours and this script is meant to be
     # runnable on demand. Its recorded result is read instead, with the one
@@ -302,7 +359,7 @@ def ec2() -> Condition:
     else:
         r = subprocess.run(["git", "-C", str(REPO), "log", "-1",
                             "--format=%ct", "--", "scripts", "_probe"],
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, encoding="utf-8")
         try:
             newest_code = int(r.stdout.strip())
         except ValueError:
@@ -405,7 +462,7 @@ def ec2() -> Condition:
     # isolation held rather than that a restore succeeded.
     r = subprocess.run(["git", "-C", str(REPO), "status", "--porcelain",
                         "--", "scripts", "_probe"],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8")
     dirty = [ln[3:].strip() for ln in r.stdout.splitlines() if ln.strip()
              and not ln.strip().endswith("full-sweep.txt")]
     if dirty:
@@ -436,7 +493,7 @@ def ec2() -> Condition:
     # the folder remains, and a check that only asks git inherits the blind
     # spot the sweep was built to avoid.
     r = subprocess.run(["git", "-C", str(REPO), "worktree", "list",
-                        "--porcelain"], capture_output=True, text=True)
+                        "--porcelain"], capture_output=True, text=True, encoding="utf-8")
     if r.returncode != 0:
         c.check(UNKNOWN, "git could not list worktrees, so leftover checkouts "
                          "are unestablished",
@@ -677,12 +734,23 @@ def ec4() -> Condition:
             # same mistake one file over, and is why authority.text() exists.
             _landed = item.get("repair_landed")
             _landed = _landed.strip() if isinstance(_landed, str) else ""
+            # "after the last frozen cycle" was the whole explanation until
+            # 27 October, and it points at the wrong thing. It suggests the
+            # repair merely arrived too late for a cycle that had already
+            # happened, so a later cycle would catch it. No later cycle in
+            # these runs can: all three are marked NOT_A_PROTOCOL_CYCLE and
+            # their evidence is development evidence by ruling. The field
+            # this reads can only be filled by a protocol cycle, and none
+            # has been run.
             c.check(UNKNOWN, f"{name}: no reviewer has examined its repair",
-                    f"Its repair landed on {_landed}, after the last frozen "
-                    f"cycle." if _landed else
-                    "No repair date is recorded for it either, so this says "
-                    "only that no\nexamination has been recorded, and not "
-                    "that a repair is waiting for one.")
+                    (f"Its repair landed on {_landed}, after the last frozen "
+                     f"cycle.\n" if _landed else
+                     "No repair date is recorded for it either, so this says "
+                     "only that no\nexamination has been recorded, and not "
+                     "that a repair is waiting for one.\n") +
+                    "A later bootstrap cycle cannot supply the examination: "
+                    "those runs are\nmarked NOT_A_PROTOCOL_CYCLE and their "
+                    "evidence is development evidence.")
             continue
 
         _parts = str(cyc).split("/")
@@ -696,6 +764,60 @@ def ec4() -> Condition:
         if not _dir.is_dir():
             c.check(FAIL, f"{name}: names a cycle that does not exist",
                     str(cyc))
+            continue
+
+        # And the run it belongs to must be a protocol run. SELF-F31.
+        #
+        # This check did not exist until 27 October, and without it the four
+        # below could all pass on a cycle that can never count. EC-4 asked
+        # for a reference of the right shape, naming a directory that
+        # exists, passing MC-2, whose preserved review mentions the item.
+        # Every one of those is true of BOOTSTRAP-003/cycle-04, which is
+        # development evidence: all twelve frozen cycles pass MC-2, EC-3
+        # says so on every run. So writing that string into
+        # independently_examined_in_cycle would have moved this condition to
+        # PASS on exactly the evidence Alex Zamurko ruled can never count.
+        #
+        # Alex Zamurko, 10 September 2026: "bootstrap/development evidence
+        # can still exist and be tested, but it can never accidentally count
+        # as authoritative protocol evidence." The controller was made to
+        # refuse it in the default reading that same day. EC-4 was written
+        # later and never asked.
+        #
+        # Asked of the controller rather than by reading run.json here. The
+        # classification rule belongs to run_classification() and a second
+        # reading of the marking would be free to disagree with it, which is
+        # the defect class this file keeps finding in itself.
+        # Required to say PROTOCOL, rather than required not to say
+        # development. The difference is the whole of this check.
+        #
+        # The first version matched the controller's REFUSED text. That
+        # refuses a development run and lets everything else through: a
+        # missing controller, an unparseable reply, a reworded refusal, a
+        # run.json that cannot be read. Each of those would have read as
+        # "not development" and therefore as acceptable, which is a check
+        # that fails open in the condition least able to afford one. Named
+        # by a reviewer the same afternoon it was written.
+        _review = REPO / "runs" / _parts[0] / "plan-review"
+        _rc, _out = tool(str(SCRIPTS / "loop_state.py"),
+                         "--review", str(_review), "--json")
+        try:
+            _kind = str(json.loads(_out).get("run_classification", ""))
+        except (json.JSONDecodeError, AttributeError):
+            _kind = ""
+        if _kind != "PROTOCOL":
+            _why = ("it belongs to a run marked NOT_A_PROTOCOL_CYCLE"
+                    if "NOT_A_PROTOCOL_CYCLE" in _out else
+                    f"the controller did not establish that its run is a "
+                    f"protocol run\n(it said {_kind!r})")
+            c.check(FAIL, f"{name}: the cycle it names is not established as "
+                          f"a protocol cycle",
+                    f"{cyc}: {_why}.\n\nAlex Zamurko, 10 September 2026: "
+                    f"development evidence \"can never accidentally\ncount "
+                    f"as authoritative protocol evidence\". An examination "
+                    f"recorded against a\ncycle this condition cannot "
+                    f"confirm is a protocol cycle is not an independent\n"
+                    f"examination for its purposes.")
             continue
 
         # Named is not the same as valid. A cycle that fails its own
@@ -750,6 +872,28 @@ def ec4() -> Condition:
     return c
 
 
+def _this_repository() -> str:
+    """`owner/name` for the repository this checkout points at, or "".
+
+    Both remote forms, because this project legitimately uses SSH for one
+    account and HTTPS for another, and a reader's clone may use either.
+
+    Returning "" rather than guessing is the point. A checkout with no
+    origin, or one pointing somewhere this cannot parse, is a checkout that
+    cannot answer whose run the evidence describes, and the caller says so
+    instead of passing.
+    """
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(REPO), "remote", "get-url", "origin"],
+            capture_output=True, text=True, encoding="utf-8")
+    except OSError:
+        return ""
+    m = re.search(r"github\.com[:/]+([^/]+)/(.+?)(?:\.git)?$",
+                  out.stdout.strip())
+    return f"{m.group(1)}/{m.group(2)}" if m else ""
+
+
 def _api_disagrees(r: dict) -> str:
     """Why this record does not match GitHub's own reply, or "" if it does.
 
@@ -789,6 +933,70 @@ def _api_disagrees(r: dict) -> str:
             return f"its preserved GitHub reply is not valid JSON: {e}"
 
         if want_sha:
+            # Alex Zamurko, 16 October 2026, naming the negative cases EC-4
+            # should have: "wrong repository, wrong commit, wrong job, wrong
+            # conclusion, missing or altered log, unsupported finding
+            # coverage." The other five were written; this was not.
+            #
+            # Without it a record could cite a real, green, independently
+            # executed GitHub run belonging to somebody else's repository and
+            # satisfy every other check here. The commit would match, because
+            # a fork shares commits. The job name would match, because
+            # workflows get copied. The conclusion would be genuine. Nothing
+            # asked whose run it was.
+            #
+            # GitHub's own reply names the repository, so the question is
+            # answered from the preserved reply rather than from the URL the
+            # record was built with, which is the field a person types.
+            said_repo = str((said.get("repository") or {}).get("full_name", ""))
+            claimed = str(r.get("repository", ""))
+            if said_repo and claimed and said_repo.lower() != claimed.lower():
+                return (f"the record says the run belongs to {claimed}, and "
+                        f"GitHub's own reply says\n      {said_repo}")
+            if not said_repo:
+                return ("GitHub's preserved reply does not name a repository, "
+                        "so which repository\n      ran this cannot be "
+                        "established from it")
+
+            # And that it is this one. The check above establishes that the
+            # record and the reply agree about whose run it was; it does not
+            # establish that the answer is this repository. A fork shares
+            # commits, so a green run in a fork would match on commit, on job
+            # name and on conclusion, and the two fields would agree with
+            # each other perfectly while describing somebody else's machine
+            # running somebody else's copy.
+            here = _this_repository()
+            if not here:
+                return ("this checkout's origin cannot be read, so whether "
+                        "the run belongs to this\n      repository is not "
+                        "established. That is not the same as it being wrong")
+            if here.lower() != claimed.lower():
+                # Two situations produce this, and the message used to name
+                # only the alarming one.
+                #
+                # A fork shares commits, so a green run in somebody else's
+                # copy matches on commit, job and conclusion while belonging
+                # to somebody else. That is what this refusal is for.
+                #
+                # A repository transfer produces the identical comparison and
+                # is not that at all. GitHub's preserved replies name the
+                # owner at the time of the run and keep naming it forever, so
+                # the moment the remote moves, every record in the history
+                # disagrees with this checkout and EC-4 drops to no usable
+                # evidence. Nothing here said so, and a reader would have gone
+                # looking for a fork. Found 26 October while checking what
+                # moving this repository to an organisation would do to its
+                # own evidence, before moving it. (SELF-F30)
+                return (f"the run belongs to {claimed} and this checkout is "
+                        f"{here}. A fork shares\n      commits, so the commit "
+                        f"matching establishes nothing about whose run it was."
+                        f"\n      If this repository was transferred or "
+                        f"renamed, that is this message too: GitHub's\n      "
+                        f"preserved replies keep the old owner, so re-record "
+                        f"the run at its new URL\n      with "
+                        f"record_execution_evidence.py and the replies are "
+                        f"re-derived.")
+
             got = str(said.get(want_sha, "")).lower()
             if got != str(r.get("commit", "")).lower():
                 return (f"the record says it examined "
@@ -897,7 +1105,18 @@ def execution_evidence(blocking: dict) -> tuple[str, str, str]:
 
         declared = {str(x) for x in r.get("covers", [])}
         observed = {f for f in blocking if f in text}
-        over = sorted(declared - observed)
+        # Two different questions, and they were being asked with one set.
+        #
+        # `observed` is blocking-filtered because only a blocking item can be
+        # covered here. `over` is not, because the message it produces says
+        # the output does not support the claim, and a run naming SELF-F25 in
+        # its output supports that claim whether or not SELF-F25 is blocking.
+        # Subtracting the blocking-filtered set reported every true non-
+        # blocking claim as unsupported: a check failing for a reason other
+        # than the one it is named for, in the condition written to stop
+        # exactly that. Found 26 October, recording run 40112505177, whose
+        # sweep names 87 repairs of which five are blocking. (SELF-F29)
+        over = sorted(d for d in declared if d not in text)
         if over:
             problems.append(
                 f"run {rid}: declared coverage its output does not support: "
@@ -976,7 +1195,7 @@ def candidate() -> tuple[str, str]:
         except json.JSONDecodeError:
             pass
     r = subprocess.run(["git", "-C", str(REPO), "rev-parse", "HEAD"],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8")
     if r.returncode == 0 and r.stdout.strip():
         return r.stdout.strip(), "HEAD, because no candidate is frozen"
     return "", "neither a frozen candidate nor HEAD could be established"
@@ -1028,14 +1247,39 @@ def main() -> int:
         return 2
     print("  criteria digest matches the frozen record.")
 
-    conditions = [ec1(), ec2(), ec3(), ec4()]
-    for c in conditions:
+    # Each condition is reported as soon as it is computed, and timed.
+    #
+    # Both halves were missing and the pair of them cost an evening. The four
+    # conditions used to be computed into a list before anything printed, so
+    # a run redirected to a file showed the four header lines above and then
+    # nothing at all until the whole thing finished. On 26 October that was
+    # read as a hang, twice, and the second time the window was closed on a
+    # run that was working.
+    #
+    # The timing is the other half, and it was estimated at "two to four
+    # minutes" from nothing at all the day before. Measured 27 October:
+    #
+    #   EC-1 23s, EC-2 1,550s, EC-3 16s, EC-4 0s, total 1,590s
+    #
+    # A number a person reads before deciding whether to wait should come
+    # from a clock. This is the same mistake as the sweep's "~1-2 h" label
+    # that three real runs contradicted, found the same week.
+    conditions, timings = [], []
+    for fn in (ec1, ec2, ec3, ec4):
+        _t0 = time.monotonic()
+        c = fn()
+        _dt = time.monotonic() - _t0
+        conditions.append(c)
+        timings.append((c.cid, _dt))
         c.report()
+        print(f"  [{_dt:,.0f}s]", flush=True)
 
     verdicts = [c.verdict for c in conditions]
     print("\n" + "-" * 68)
     for c in conditions:
         print(f"  {c.cid}  {c.verdict}")
+    print(f"\n  cost: " + ", ".join(f"{cid} {dt:,.0f}s" for cid, dt in timings)
+          + f", total {sum(dt for _, dt in timings):,.0f}s")
 
     print("\n  NO OVERALL VERDICT IS PRINTED HERE, and that is deliberate.")
     print("  Each condition above has a judgement reserved to Alex Zamurko, "

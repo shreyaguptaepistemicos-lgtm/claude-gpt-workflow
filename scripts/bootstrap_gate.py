@@ -53,6 +53,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import authority  # noqa: E402
 
+# SELF-F16/F20/F25. The Windows console encodes at the locale code page,
+# cp1252, and this program holds characters it has no room for. Without
+# this the work completes and the print raises UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 REPO = Path(__file__).resolve().parent.parent
 REVIEW_DIR = REPO / "bootstrap-review"
 RECORD = REVIEW_DIR / "decision.json"
@@ -427,7 +435,7 @@ def manifest_provenance(root: Path) -> dict:
     def git(*args: str) -> tuple[int, str]:
         try:
             r = subprocess.run(["git", "-C", str(root), *args],
-                               capture_output=True, text=True)
+                               capture_output=True, text=True, encoding="utf-8")
             return r.returncode, r.stdout.strip()
         except FileNotFoundError:
             return 127, ""
@@ -690,7 +698,7 @@ def runner_approvals_in_history(root: Path) -> tuple[list[str], str | None]:
     r = subprocess.run(
         ["git", "-C", str(root), "log", "--all", "--diff-filter=A",
          "--format=%H", "--name-only", "--", f"{RUNNER_APPROVAL_DIR}/"],
-        capture_output=True, text=True)
+        capture_output=True, text=True, encoding="utf-8")
     if r.returncode != 0:
         detail = (r.stderr.strip().splitlines() or ["(no reason given)"])[0]
         return [], f"git log exited {r.returncode}: {detail}"
@@ -1180,7 +1188,7 @@ def cmd_approve_runner(a: argparse.Namespace) -> int:
     # stages, not a termination.
     rel_out = out.relative_to(REPO).as_posix()
     add = subprocess.run(["git", "-C", str(REPO), "add", "--", rel_out],
-                         capture_output=True, text=True)
+                         capture_output=True, text=True, encoding="utf-8")
     if add.returncode != 0:
         out.unlink(missing_ok=True)
         raise Refused(
@@ -1194,11 +1202,11 @@ def cmd_approve_runner(a: argparse.Namespace) -> int:
            f"{record['approved_by']}. Ends the bootstrap exception.")
     com = subprocess.run(
         ["git", "-C", str(REPO), "commit", "--only", "-m", msg, "--", rel_out],
-        capture_output=True, text=True)
+        capture_output=True, text=True, encoding="utf-8")
     if com.returncode != 0:
         out.unlink(missing_ok=True)
         subprocess.run(["git", "-C", str(REPO), "reset", "--", rel_out],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8")
         raise Refused(
             f"the approval could not be committed, so it was not written:\n  "
             f"{(com.stderr or com.stdout).strip()}")

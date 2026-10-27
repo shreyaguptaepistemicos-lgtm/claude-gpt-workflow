@@ -550,10 +550,19 @@ MUTATIONS = [
      # Was "source fields are null, not empty", which is a phrase no control
      # in that suite has ever printed. The line was unverifiable from the day
      # it was written and the first completed full sweep said so, on 15
-     # October. The controls print "<label>: accepted" when a bad value gets
-     # through, and the labels are built as "an approval whose source
-     # <field> is <how>".
-     "is null: accepted"),
+     # October. It was then changed to "is null: accepted", which was worse
+     # in a way nothing could see: six controls in that function end their
+     # label that way, three source fields and three top-level fields, so the
+     # mutation could be caught by a control it is not about and counted as a
+     # pass.
+     #
+     # Alex Zamurko, 16 October 2026: "use a stable, identifiable failure
+     # signal from its named test, preferably a specific test or assertion
+     # identifier rather than fragile prose." This is that identifier. It is
+     # assigned in the suite rather than derived from any wording, and the
+     # suite refuses a duplicate, so this signal names one control and will
+     # keep naming it through any rewording.
+     "[AUTH-SRC-MEDIUM-NULL]"),
 
     # Alex Zamurko's fourth condition of 9 October: an authorisation has to be
     # verifiable rather than a name in a file. Two lines, because the source
@@ -905,6 +914,66 @@ MUTATIONS = [
      "test_exit_criteria.py",
      "a record calling a job successful that GitHub calls failed"),
 
+    # EC-4f and EC-4g. The last two of the six negative cases Alex Zamurko
+    # named on 16 October, written on the 20th. Until then a record could
+    # cite a run in somebody else's repository and EC-4 accepted it.
+    #
+    # Two lines because they refuse two different things. The first catches a
+    # record and GitHub's reply disagreeing about whose run it was. The
+    # second catches them agreeing perfectly on a repository that is not this
+    # one, which is the dangerous case: a fork shares commits, workflows get
+    # copied, and the conclusion is genuine, so every other check in EC-4
+    # passes on it.
+    ("EC-4f  a record's repository must match GitHub's own reply",
+     "exit_criteria.py",
+     "            if said_repo and claimed and said_repo.lower() "
+     "!= claimed.lower():",
+     "            if False:",
+     "test_exit_criteria.py",
+     "a record whose repository"),
+
+    ("EC-4g  the run must belong to this repository, not a fork of it",
+     "exit_criteria.py",
+     "            if here.lower() != claimed.lower():",
+     "            if False:",
+     "test_exit_criteria.py",
+     "a genuine green run in somebody else's repository"),
+
+    # SELF-F29, 26 October. The other side of EC-4's coverage refusal. The
+    # refusal is named for what the output supports, and was computed by
+    # subtracting the blocking-filtered set, so every true claim about a
+    # non-blocking finding was reported as unsupported. The replacement here
+    # is the defect verbatim: if somebody unifies the two sets again because
+    # they look redundant, this goes red.
+    #
+    # Matched on [EC4-COVERAGE] rather than on the sentence. The sentence is
+    # the sort that gets reworded, and the 86 entries above that match on
+    # prose are SELF-F15b's residual, not a pattern to copy.
+    # SELF-F30, 26 October. The repository check is correct and is not what
+    # this watches. What it watches is the half of the message that tells a
+    # reader which of the two situations they are in: a fork substitution, or
+    # a repository that moved. Remove it and the fork control still passes,
+    # because the comparison is unchanged, which is exactly why the second
+    # control had to be written.
+    #
+    # Matched on the needle rather than the control's label. The needle is
+    # quoted into the failure line and appears nowhere in a green run, and it
+    # is the text the repair is about rather than a sentence describing it.
+    ("SELF-F30  a moved repository is named, not left reading as a fork",
+     "exit_criteria.py",
+     '                        f"\\n      If this repository was transferred or "',
+     '                        f"\\n      If this repository moved, "',
+     "test_exit_criteria.py",
+     "transferred or renamed"),
+
+    ("SELF-F29  a declared finding is judged against the output, not the "
+     "blocking list",
+     "exit_criteria.py",
+     "        over = sorted(d for d in declared if d not in text)",
+     "        over = sorted(declared - observed)",
+     "test_exit_criteria.py",
+     "[EC4-COVERAGE]"),
+
     # SELF-F18. Alex Zamurko, 16 October 2026: the coverage checker "must
     # recognise actual executable test commands, not comments or disabled
     # steps." The first version searched ci.yml as one string, so a suite named
@@ -932,6 +1001,73 @@ MUTATIONS = [
      "    return \"\"",
      "test_ci_coverage.py",
      "a suite in a job gated by an undecided condition"),
+
+    # SELF-F25, both halves, because the two are one repair and a probe that
+    # only removed one of them would report the other as watched when nothing
+    # watches it.
+    #
+    # The speaking half. ledger.py is a program holding characters cp1252 has
+    # no room for, and the guard is what lets it say them. Take the guard out
+    # and the scan must name that file, not merely fail somewhere.
+    ("SELF-F25a  a program printing non-ASCII must configure its console",
+     "scripts/ledger.py",
+     "    sys.stdout.reconfigure(encoding=\"utf-8\")",
+     "    pass",
+     "test_encoding_discipline.py",
+     "scripts/ledger.py"),
+
+    # The listening half. One subprocess call in cycle_projection.py, so the
+    # anchor cannot match the wrong one. Removing the encoding puts the parent
+    # back to decoding its child at whatever locale it happens to have, which
+    # is the state that returned None for stdout and raised a TypeError two
+    # lines later in test_interfaces.py on 20 October 2026.
+    ("SELF-F25b  a call reading a child as text must name the encoding",
+     "scripts/cycle_projection.py",
+     "                       capture_output=True, text=True, "
+     "encoding=\"utf-8\")",
+     "                       capture_output=True, text=True)",
+     "test_encoding_discipline.py",
+     "decoded at the locale"),
+
+    # Issue 6. Two mutations, because the check has two halves and they fail
+    # differently. One asks whether the record still describes the manifest;
+    # the other asks whether the manifest still describes the system.
+    #
+    # The date comparison is the half that answers "will it agree next week".
+    # Remove it and a status record left behind by a scope change passes.
+    # Both of these came back WRONG CONTROL in ci run #332, found by Alex
+    # Zamurko reading the sweep. The expected text was the wording of the
+    # original failure, and that wording cannot appear: disabling a check
+    # makes its control fail with "expected a failure, got none" instead. A
+    # mutation matching on the check's own message can never be caught by the
+    # control it names. SELF-F15b is the same defect and was repaired the day
+    # before this was written.
+    ("ISSUE-6a  a record older than the scope change it describes is stale",
+     "scripts/test_system_identity.py",
+     "    if last and claims[\"STATUS_AS_OF\"] < last[:10]:",
+     "    if False:",
+     "test_system_identity.py",
+     "[SYSID-STALE]"),
+
+    # And the closure, which is the "suites' dependencies" half. Remove it
+    # and a manifest can pin a file whose imports nobody pinned.
+    ("ISSUE-6b  a covered file's dependencies are part of the covered system",
+     "scripts/test_system_identity.py",
+     "    uncovered = sorted(reach - set(comps))",
+     "    uncovered = []",
+     "test_system_identity.py",
+     "[SYSID-CLOSURE]"),
+
+    # Issue 8. The load-bearing half of that check is not "does the suite
+    # read a record", which is allowed, but "does it say which way it fails
+    # when the record is gone". Remove that question and a declaration can
+    # omit the one thing that distinguishes the two cases.
+    ("ISSUE-8  a record source must say which way it fails when absent",
+     "scripts/test_fixture_sources.py",
+     "        if not any(m in why.lower() for m in ABSENT_MARKERS):",
+     "        if False:",
+     "test_fixture_sources.py",
+     "a record source with no absent clause"),
 
     # SELF-F13's line belongs here and is deliberately absent. The repair is
     # in approval_package.py, on Alex Zamurko's ruling of 14 October 2026 that
@@ -1023,20 +1159,42 @@ def take_lock() -> str:
             held = json.loads(LOCK.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             held = {}
+        _pid = held.get("pid", "unrecorded")
         return (
             f"another run holds the sandboxes.\n"
-            f"      pid     {held.get('pid', 'unrecorded')}\n"
-            f"      since   {held.get('at', 'unrecorded')}\n\n"
+            f"      pid     {_pid}\n"
+            f"      since   {held.get('at', 'unrecorded')}\n"
+            f"      command {held.get('argv', 'unrecorded')}\n\n"
             "  Two probes at once delete each other's working copies, so this "
             "one refuses\n  rather than racing. If that run is finished or was "
             "killed, remove the lock:\n\n"
             f"      Remove-Item {LOCK}\n\n"
             "  It is not removed automatically, because deciding on its own "
-            "that another run\n  is dead is the guess this exists to avoid.")
+            "that another run\n  is dead is the guess this exists to avoid.\n\n"
+            f"  Check it properly. A pid is reused: on 20 October this lock "
+            f"named a pid that\n  the operating system had since given to an "
+            f"unrelated program, so finding a\n  live process by that number "
+            f"proves nothing. Compare the command too:\n\n"
+            f"      Get-CimInstance Win32_Process -Filter \"ProcessId={_pid}\""
+            f" | Select-Object CommandLine\n\n"
+            "  If it is not running this probe, the lock is stale.")
     global _HELD
     with os.fdopen(fd, "w", encoding="utf-8") as fh:
         json.dump({"pid": os.getpid(),
-                   "at": datetime.now().astimezone().isoformat(timespec="seconds")},
+                   "at": datetime.now().astimezone().isoformat(timespec="seconds"),
+                   # SELF-F22. A pid does not identify a process for long.
+                   # On 20 October a sweep died overnight and its lock named
+                   # pid 21568; by morning the operating system had given
+                   # that number to `ipf_helper`, so looking it up found a
+                   # live process that had nothing to do with the probe. The
+                   # refusal asks a person to decide whether that run is
+                   # alive, and the only thing it gave them to decide with
+                   # was a number that had already been reused.
+                   #
+                   # The command line is what makes the question answerable:
+                   # a live process bearing this pid that is not running this
+                   # file is not the run that took the lock.
+                   "argv": " ".join(sys.argv)[:200]},
                   fh, indent=2)
     _HELD = True
     return ""
@@ -1083,11 +1241,11 @@ def drop_sandboxes() -> tuple[list[str], list[str]]:
         # Through git first, so its registration goes too, then from disk in
         # case git never knew about it or has since forgotten.
         subprocess.run(["git", "-C", str(REPO), "worktree", "remove",
-                        "--force", str(p)], capture_output=True, text=True)
+                        "--force", str(p)], capture_output=True, text=True, encoding="utf-8")
         shutil.rmtree(p, ignore_errors=True)
         (stuck if p.exists() else swept).append(p.name)
     subprocess.run(["git", "-C", str(REPO), "worktree", "prune"],
-                   capture_output=True, text=True)
+                   capture_output=True, text=True, encoding="utf-8")
     return swept, stuck
 
 
@@ -1097,11 +1255,11 @@ def make_sandbox() -> Path:
     path = SANDBOX_ROOT / f"{SANDBOX_PREFIX}{os.getpid()}"
     if path.exists():
         subprocess.run(["git", "-C", str(REPO), "worktree", "remove",
-                        "--force", str(path)], capture_output=True, text=True)
+                        "--force", str(path)], capture_output=True, text=True, encoding="utf-8")
         shutil.rmtree(path, ignore_errors=True)
     r = subprocess.run(["git", "-C", str(REPO), "worktree", "add", "--detach",
                         "--quiet", str(path), "HEAD"],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8")
     if r.returncode != 0:
         raise RuntimeError("could not create the disposable checkout:\n"
                            + (r.stderr or r.stdout).strip())
@@ -1116,14 +1274,14 @@ def restore_in(root: Path, rel: str) -> None:
     HEAD and nothing stages anything in it.
     """
     subprocess.run(["git", "-C", str(root), "checkout", "--", rel],
-                   capture_output=True, text=True)
+                   capture_output=True, text=True, encoding="utf-8")
 
 
 def run_suite(name: str, root: Path) -> subprocess.CompletedProcess:
     env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8")
     return subprocess.run([sys.executable, str(root / "scripts" / name)],
                           cwd=str(root),
-                          env=env, capture_output=True, text=True, timeout=900)
+                          env=env, capture_output=True, text=True, encoding="utf-8", timeout=900)
 
 
 def _sha_text(text: str) -> str:
@@ -1132,7 +1290,7 @@ def _sha_text(text: str) -> str:
 
 def _head() -> str:
     r = subprocess.run(["git", "-C", str(REPO), "rev-parse", "HEAD"],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8")
     return r.stdout.strip() if r.returncode == 0 else ""
 
 
@@ -1306,7 +1464,7 @@ def modified(rel_paths: list[str]) -> list[str]:
     """Which of these repo-relative paths git reports as changed."""
     r = subprocess.run(
         ["git", "-C", str(REPO), "status", "--porcelain", "--"] + rel_paths,
-        capture_output=True, text=True)
+        capture_output=True, text=True, encoding="utf-8")
     if r.returncode != 0:
         raise RuntimeError(f"git status failed:\n{r.stderr.strip()}")
     return sorted({ln[3:].strip() for ln in r.stdout.splitlines() if ln.strip()})
@@ -1604,9 +1762,9 @@ def main() -> int:
         bad += 1
 
     subprocess.run(["git", "-C", str(REPO), "worktree", "remove", "--force",
-                    str(work)], capture_output=True, text=True)
+                    str(work)], capture_output=True, text=True, encoding="utf-8")
     subprocess.run(["git", "-C", str(REPO), "worktree", "prune"],
-                   capture_output=True, text=True)
+                   capture_output=True, text=True, encoding="utf-8")
 
     # SELF-F07, the EC-2 row: "A recent log containing one [caught] and no
     # recognized failure marker can pass the sweep check. An interrupted

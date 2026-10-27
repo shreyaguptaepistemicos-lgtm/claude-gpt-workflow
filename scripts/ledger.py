@@ -67,6 +67,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cycle_projection  # noqa: E402
 
+# SELF-F16/F20/F25. The Windows console encodes at the locale code page,
+# cp1252, and this program holds characters it has no room for. Without
+# this the work completes and the print raises UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 # B02-F03. This was `\A[A-Z]?(\d{2})-F(\d{2,3})\Z` — one optional letter, where
 # the schema's FINDING_ID_GRAMMAR allows up to two. So `AB02-F01` parsed cleanly
 # and the ledger then refused it, and a finding that was valid at capture could

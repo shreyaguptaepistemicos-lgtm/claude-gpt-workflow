@@ -34,6 +34,14 @@ import sys
 import tempfile
 from pathlib import Path
 
+# SELF-F16/F20/F25. The Windows console encodes at the locale code page,
+# cp1252, and this program holds characters it has no room for. Without
+# this the work completes and the print raises UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 REPO = Path(__file__).resolve().parent.parent
 CONVERTER = REPO / "scripts" / "convert_protocol.py"
 PROTOCOL = REPO / "specs" / "implementation-review-protocol-v1.1.md"
@@ -71,7 +79,7 @@ def main(argv: list[str]) -> int:
         conv = Path(td) / "as_converted.md"
         r = subprocess.run([sys.executable, str(CONVERTER), "--docx", a.docx,
                             "--out", str(conv), "--terminal", a.terminal],
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, encoding="utf-8")
         if r.returncode != 0:
             print("the source docx does not pass conversion, so the committed "
                   "file cannot be reconstructed from it:\n")

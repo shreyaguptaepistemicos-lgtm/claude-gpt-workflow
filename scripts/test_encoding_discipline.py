@@ -51,6 +51,18 @@ import ast
 import sys
 from pathlib import Path
 
+# The first run of the console scan below crashed here, in the line that
+# prints its own findings, because this file is a program, it now holds an
+# arrow and an en dash in MUTE_SAMPLE, and it had never told its console what
+# it was reading. The scan's first finding was the scanner. That is the
+# cheapest possible demonstration that it reports something real, and it is
+# also the fourth instance of SELF-F16 arriving while the rule for SELF-F16
+# was being written.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 REPO = Path(__file__).resolve().parent.parent
 
 # Which calls decode is decided in kind() below rather than by a name list,
@@ -145,6 +157,165 @@ k = p.write_text("s")                  # FLAG
 '''
 
 
+def runnable(tree: ast.Module) -> bool:
+    """Whether this file is a program, by the presence of a __main__ guard."""
+    for node in tree.body:
+        if isinstance(node, ast.If):
+            for sub in ast.walk(node.test):
+                if isinstance(sub, ast.Name) and sub.id == "__name__":
+                    return True
+    return False
+
+
+def configures_console(tree: ast.Module, stream: str = "stdout") -> bool:
+    """Whether this file tells that stream what encoding to write in.
+
+    One stream, named, rather than either of them. The first version accepted
+    a reconfigure on stdout OR stderr as proof the program could speak, which
+    is two different streams treated as one fact: a program configuring stderr
+    alone and printing to stdout dies exactly as before, and this said it was
+    fine.
+
+    Found on 21 October 2026 by mutation SELF-F25a, which removed the stdout
+    line from ledger.py and watched the suite pass anyway, because the stderr
+    line below it was still there. That is the shape this whole file exists
+    for, arriving in the file itself: a check answering a question next to the
+    one it was asked.
+    """
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "reconfigure"
+                and isinstance(node.func.value, ast.Attribute)
+                and node.func.value.attr == stream):
+            return True
+    return False
+
+
+def unprintable(tree: ast.Module) -> list[tuple[int, str]]:
+    """String literals holding a character cp1252 has no room for.
+
+    Docstrings are included on purpose. Nineteen programs here hand their
+    module docstring to argparse as `description=__doc__` and two print it to
+    stderr on a usage error, so a docstring is console output and a curly
+    quote in one takes the program down on `--help`. Exempting docstrings
+    would have been the obvious simplification and would have left the most
+    common path in the repository uncovered.
+    """
+    out = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            bad = sorted({c for c in node.value if ord(c) > 127})
+            if bad:
+                out.append((node.lineno, "".join(bad)))
+    return sorted(set(out))
+
+
+# The same discipline as SAMPLE above: the scan is run against a sample whose
+# answers are written down, so a scan that has stopped finding anything is
+# distinguishable from a repository with nothing to find.
+def deaf(tree: ast.Module) -> list[tuple[int, str]]:
+    """Calls that read a child process's output at the locale's mercy.
+
+    The other half of the same defect, and not a separate one. A program
+    told to emit UTF-8 is speaking a language its parent may not read:
+    subprocess decodes with the locale when `text=True` is given without an
+    encoding, which on Windows is cp1252. The child's bytes then fail to
+    decode, `stdout` comes back None rather than raising where it happened,
+    and the next line asks whether a string is in None.
+
+    Established on 20 October 2026 rather than reasoned about. The guard was
+    added to forty programs, and test_interfaces.py and test_run_review.py,
+    both green until then, died with UnicodeDecodeError on byte 0x9d followed
+    by TypeError: argument of type 'NoneType' is not iterable. Repairing the
+    writing side alone is what broke them, which is why the two land together.
+
+    A call with no `text=True` is exempt, for the same reason binary mode is
+    exempt above: it returns bytes, and bytes do not decode.
+    """
+    out = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        f = node.func
+        name = (f.attr if isinstance(f, ast.Attribute)
+                else f.id if isinstance(f, ast.Name) else "")
+        if name not in ("run", "check_output", "Popen"):
+            continue
+        kw = {k.arg: k.value for k in node.keywords if k.arg}
+        if "encoding" in kw:
+            continue
+        for flag in ("text", "universal_newlines"):
+            v = kw.get(flag)
+            if isinstance(v, ast.Constant) and v.value is True:
+                out.append((node.lineno, flag))
+                break
+    return sorted(set(out))
+
+
+# Same discipline again. Every DEAF line must be found and no other.
+# A finding is recorded at the call's opening line, so every marker sits on
+# the opening line too. The first version of this sample put one on a closing
+# line and the self-check reported the scan as broken, which it was not.
+DEAF_SAMPLE = '''import subprocess
+a = subprocess.run(["x"], capture_output=True, text=True)        # DEAF
+b = subprocess.run(["x"], capture_output=True)                   # bytes
+c = subprocess.run(["x"], capture_output=True, text=True,        # named
+                   encoding="utf-8")
+d = subprocess.run(["x"], universal_newlines=True)               # DEAF
+e = subprocess.check_output(["x"], text=True)                    # DEAF
+f = some.run(["x"])                                              # no text
+'''
+
+
+def deaf_self_check() -> list[str]:
+    lines = DEAF_SAMPLE.splitlines()
+    want = {n for n, ln in enumerate(lines, 1) if "# DEAF" in ln}
+    got = {ln for ln, _ in deaf(ast.parse(DEAF_SAMPLE))}
+    out = []
+    for n in sorted(want - got):
+        out.append(f"subprocess line {n} should have been flagged and was "
+                   f"not: {lines[n - 1].strip()}")
+    for n in sorted(got - want):
+        out.append(f"subprocess line {n} was flagged and should not have "
+                   f"been: {lines[n - 1].strip()}")
+    return out
+
+
+MUTE_SAMPLE = [
+    # (source, should_be_flagged, why)
+    ('import sys\nx = "→"\nif __name__ == "__main__":\n    print(x)\n',
+     True, "a program with an arrow and no console configuration"),
+    ('import sys\nsys.stdout.reconfigure(encoding="utf-8")\nx = "→"\n'
+     'if __name__ == "__main__":\n    print(x)\n',
+     False, "the same program, configured"),
+    ('x = "→"\n',
+     False, "not a program; whoever runs it configures the console"),
+    ('import sys\nif __name__ == "__main__":\n    print("plain")\n',
+     False, "a program with nothing cp1252 cannot hold"),
+    ('"""A docstring with an en dash – in it."""\nimport sys\n'
+     'if __name__ == "__main__":\n    print(__doc__)\n',
+     True, "a docstring is console output on --help"),
+    # The case mutation SELF-F25a exposed. Configuring the stream it does not
+    # print on is not configuring the stream it does.
+    ('import sys\nsys.stderr.reconfigure(encoding="utf-8")\nx = "→"\n'
+     'if __name__ == "__main__":\n    print(x)\n',
+     True, "stderr configured, stdout left at the locale, printing to stdout"),
+]
+
+
+def mute_self_check() -> list[str]:
+    out = []
+    for src, want, why in MUTE_SAMPLE:
+        tree = ast.parse(src)
+        got = bool(runnable(tree) and not configures_console(tree)
+                   and unprintable(tree))
+        if got != want:
+            out.append(f"{why}: expected {'a flag' if want else 'no flag'}, "
+                       f"got {'a flag' if got else 'none'}")
+    return out
+
+
 def self_check() -> list[str]:
     """Run the scan over SAMPLE and compare against its FLAG markers."""
     lines = SAMPLE.splitlines()
@@ -176,7 +347,11 @@ def main() -> int:
     unreadable: list[str] = []
     files = sources()
 
-    wrong = self_check()
+    mute: list[str] = []
+
+    unheard: list[str] = []
+
+    wrong = self_check() + mute_self_check() + deaf_self_check()
     if wrong:
         print("encoding discipline")
         print("  the scan does not agree with its own sample, so nothing it "
@@ -205,6 +380,15 @@ def main() -> int:
             shown = "open" if what.endswith("open") else what
             bad.append(f"{rel}:{node.lineno}  {shown}() names no encoding")
 
+        if runnable(tree) and not configures_console(tree):
+            for ln, chars in unprintable(tree):
+                mute.append(f"{rel}:{ln}  holds {chars!r} and the console is "
+                            f"never told what it is reading")
+
+        for ln, flag in deaf(tree):
+            unheard.append(f"{rel}:{ln}  {flag}=True with no encoding, so the "
+                           f"child is decoded at the locale")
+
     print("encoding discipline")
     print("  [ok] the scan agrees with its own sample: every FLAG line found, "
           "no others")
@@ -227,8 +411,48 @@ def main() -> int:
         return 1
 
     print("  [ok] every text read and write names its encoding")
+
+    if mute:
+        print()
+        for m in mute:
+            print(f"  FAIL: {m}")
+        print("\n  Each of these is a program that can compute the right "
+              "answer and die trying\n  to say it. The Windows console "
+              "encodes at the locale code page, cp1252, and\n  a character "
+              "outside it raises UnicodeEncodeError at the print, after the\n"
+              "  work is done. That is SELF-F16, SELF-F20 and SELF-F25: the "
+              "same defect three\n  times, repaired as an instance each time "
+              "and never as a rule.\n\n  Two lines at the top, below the "
+              "imports:\n"
+              "      if hasattr(sys.stdout, \"reconfigure\"):\n"
+              "          sys.stdout.reconfigure(encoding=\"utf-8\")")
+        return 1
+
+    if unheard:
+        print()
+        for u in unheard:
+            print(f"  FAIL: {u}")
+        print("\n  These are the listening half of the same defect. A child "
+              "told to emit UTF-8\n  is speaking a language its parent cannot "
+              "read: subprocess decodes with the\n  locale when text=True "
+              "carries no encoding, the decode fails, and stdout comes\n  "
+              "back None rather than raising where it happened. The next line "
+              "then asks\n  whether a string is in None.\n\n  Name it at the "
+              "call: subprocess.run(..., text=True, encoding=\"utf-8\").")
+        return 1
+
+    print("  [ok] every program that holds a character cp1252 cannot encode "
+          "configures its console")
+    print("  [ok] every call that reads a child as text names the encoding "
+          "it reads with")
     print("\n  Note: this does not check that the encoding named is the "
           "right one.")
+    print("  Note: a module with no __main__ guard is not examined for "
+          "console output. Its\n  strings are printed by whichever program "
+          "imported it, and reconfigure applies\n  to the process, so the "
+          "program is the right place to ask. A program with no\n  "
+          "non-ASCII of its own that prints a library's is therefore not "
+          "covered.")
     return 0
 
 

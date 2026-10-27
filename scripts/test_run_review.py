@@ -27,6 +27,27 @@ import sys
 import tempfile
 from pathlib import Path
 
+# SELF-F16/F20/F25. The Windows console encodes at the locale code page,
+# cp1252, and this program holds characters it has no room for. Without
+# this the work completes and the print raises UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
+# Issue 8. specs/FIXTURE-SOURCES.md for the rule and why the absent case has
+# to be stated.
+FIXTURE_SOURCES = {
+    "approvals": "canonical: a scope change to the covered manifest is only "
+                 "legitimate with an authorisation record, so a fixture that "
+                 "approves a bootstrap review needs the manifest and the "
+                 "authorisation together. A second set written into this "
+                 "suite would be the duplicate source of truth the ruling of "
+                 "2 October 2026 removed, wearing a different hat. absent: "
+                 "shutil.copytree raises FileNotFoundError and the suite "
+                 "stops, so the fixture cannot be built at all without it.",
+}
+
 SRC = Path(__file__).resolve().parent
 PROTOCOL_BODY = "# protocol\n\nV01 ...\n"
 SPEC_BODY = "# spec\n\nrule G1\n"
@@ -34,7 +55,7 @@ PROMPT_BODY = "Review the plan against the spec. Report findings.\n"
 
 
 def sh(*args: str, cwd: Path) -> subprocess.CompletedProcess:
-    return subprocess.run(args, cwd=str(cwd), capture_output=True, text=True)
+    return subprocess.run(args, cwd=str(cwd), capture_output=True, text=True, encoding="utf-8")
 
 
 def write_lf(p: Path, text: str) -> None:
@@ -2027,51 +2048,88 @@ def main() -> int:
         rec.update(over)
         write_lf(approval_path, json.dumps(rec, indent=2) + "\n")
 
-    def refuse_with(label: str, needle: str, **over) -> None:
+    # Alex Zamurko, 16 October 2026, on D04-F01: "use a stable, identifiable
+    # failure signal from its named test, preferably a specific test or
+    # assertion identifier rather than fragile prose."
+    #
+    # The probe matched D04-F01 on "is null: accepted". Six controls in this
+    # function end their label that way: three source fields and three
+    # top-level fields, each generated with "null" among its bad values. So a
+    # sweep could remove the repair, watch an unintended control go red, and
+    # count it as a catch. That is the wrong-control result his decision
+    # refuses, and the preflight anchor check cannot see it, because the
+    # anchor is fine and the signal is ambiguous.
+    #
+    # Each control now carries an identifier that is assigned rather than
+    # derived from its wording, so rewording the label cannot move it and two
+    # controls cannot collide into one signal. seen_ids below refuses a
+    # duplicate, because an identifier that is not unique is the same defect
+    # wearing a shorter name.
+    seen_ids: dict[str, str] = {}
+
+    def refuse_with(cid: str, label: str, needle: str, **over) -> None:
+        if cid in seen_ids:
+            failures.append(f"control id {cid} is used twice: "
+                            f"{seen_ids[cid]!r} and {label!r}. A signal that "
+                            f"names two controls names neither.")
+            return
+        seen_ids[cid] = label
         approve(**over)
         rr = runner(t16, "record", "--cycle", str(cyc), "--output", "other.md",
                     "--invocation", "manual", "--supersede-capture",
                     "--reason", "partial paste; full reply recaptured")
         if rr.returncode == 0:
-            failures.append(f"{label}: accepted")
+            failures.append(f"[{cid}] {label}: accepted")
         elif needle.lower() not in (rr.stdout + rr.stderr).lower():
-            failures.append(f"{label}: refused for the wrong reason\n"
+            failures.append(f"[{cid}] {label}: refused for the wrong reason\n"
                             f"  wanted {needle!r}\n  got {(rr.stderr + rr.stdout)[:300]}")
         else:
-            print(f"  [ok] refused: {label}")
+            print(f"  [ok] [{cid}] refused: {label}")
 
-    refuse_with("an approval naming nobody", "authorized_by", authorized_by="")
-    refuse_with("an approval whose reason is a placeholder", "at least",
+    refuse_with("AUTH-WHO-EMPTY",
+                "an approval naming nobody", "authorized_by", authorized_by="")
+    refuse_with("AUTH-REASON-PLACEHOLDER",
+                "an approval whose reason is a placeholder", "at least",
                 reason="ok")
-    refuse_with("an approval for a different capture", "does not match",
+    refuse_with("AUTH-CAPTURE-MISMATCH",
+                "an approval for a different capture", "does not match",
                 superseding_sha256="0" * 64)
-    refuse_with("an approval for a different cycle", "does not match",
+    refuse_with("AUTH-CYCLE-MISMATCH",
+                "an approval for a different cycle", "does not match",
                 cycle="cycle-09")
-    refuse_with("an approval of the wrong kind", "schema",
+    refuse_with("AUTH-SCHEMA-WRONG",
+                "an approval of the wrong kind", "schema",
                 schema="runner-approval/1")
 
     # B02-F10, second half. Alex Zamurko: "Add negative controls for every
     # claimed refusal, including malformed JSON and absent timestamp cases."
     # Both refusals existed in require_approval and neither was exercised, while
     # the suite's closing line reported every refusal as reachable.
-    refuse_with("an approval with no timestamp", "no `at` timestamp", at="")
+    refuse_with("AUTH-AT-EMPTY",
+                "an approval with no timestamp", "no `at` timestamp", at="")
 
     # Alex Zamurko, 9 October 2026: "Make sure the authorisation is properly
     # documented and can be verified, rather than relying only on a name
     # entered into a file." Four refusals, because the source has three parts
     # that each do different work and a quote too short to match is the same
     # as no quote at all.
-    refuse_with("an approval with no source at all", "no `source`", source=None)
-    refuse_with("an approval whose source names no medium", "medium",
+    refuse_with("AUTH-SRC-ABSENT",
+                "an approval with no source at all", "no `source`",
+                source=None)
+    refuse_with("AUTH-SRC-MEDIUM-EMPTY",
+                "an approval whose source names no medium", "medium",
                 source={"medium": "", "reference": "somewhere",
                         "quote": "go ahead and replace that capture"})
-    refuse_with("an approval whose source cannot be located", "reference",
+    refuse_with("AUTH-SRC-REFERENCE-EMPTY",
+                "an approval whose source cannot be located", "reference",
                 source={"medium": "Slack", "reference": "",
                         "quote": "go ahead and replace that capture"})
-    refuse_with("an approval quoting nothing", "quote",
+    refuse_with("AUTH-SRC-QUOTE-EMPTY",
+                "an approval quoting nothing", "quote",
                 source={"medium": "Slack", "reference": "workflow channel",
                         "quote": ""})
-    refuse_with("an approval whose quote is too short to match", "at least",
+    refuse_with("AUTH-SRC-QUOTE-SHORT",
+                "an approval whose quote is too short to match", "at least",
                 source={"medium": "Slack", "reference": "workflow channel",
                         "quote": "ok fine"})
 
@@ -2087,14 +2145,16 @@ def main() -> int:
     # described: a pre-cutoff `/1` record with no source at all must get past
     # the source check and fail on the hash binding instead. If the source
     # check still ran, the refusal would name the source and this would fail.
-    refuse_with("a /1 approval from before the rule is read under the old one",
+    refuse_with("AUTH-GRANDFATHER-PREDATES",
+                "a /1 approval from before the rule is read under the old one",
                 "does not match",
                 schema="capture-supersession/1", at="2026-09-09T21:40:00Z",
                 source=None, superseding_sha256="0" * 64)
 
     # And the hole: declaring the old schema on a record written after the
     # rule took effect would opt out of it by typing one character.
-    refuse_with("a /1 approval dated after the rule does not get the old one",
+    refuse_with("AUTH-GRANDFATHER-AFTER",
+                "a /1 approval dated after the rule does not get the old one",
                 "predates the requirement",
                 schema="capture-supersession/1", at="2026-10-09T12:00:00Z",
                 source=None)
@@ -2121,17 +2181,22 @@ def main() -> int:
     _OK_SOURCE = {"medium": "Slack",
                   "reference": "workflow channel, 9 September 2026",
                   "quote": "go ahead and replace that capture"}
-    _BAD = (("null", None), ("a number", 7), ("a list", []),
-            ("whitespace only", "   "), ("absent", "__omit__"))
+    # The identifier token is carried in the table rather than made from the
+    # prose. Slugifying "whitespace only" would work until somebody writes
+    # "only whitespace", which is the dependency being removed.
+    _BAD = (("null", None, "NULL"), ("a number", 7, "NUMBER"),
+            ("a list", [], "LIST"), ("whitespace only", "   ", "BLANK"),
+            ("absent", "__omit__", "MISSING"))
 
     for _f in ("medium", "reference", "quote"):
-        for _how, _val in _BAD:
+        for _how, _val, _tok in _BAD:
             _src = dict(_OK_SOURCE)
             if _val == "__omit__":
                 _src.pop(_f)
             else:
                 _src[_f] = _val
-            refuse_with(f"an approval whose source {_f} is {_how}", _f,
+            refuse_with(f"AUTH-SRC-{_f.upper()}-{_tok}",
+                        f"an approval whose source {_f} is {_how}", _f,
                         source=_src)
 
     # The three beside the source carried the identical expression and so the
@@ -2140,8 +2205,9 @@ def main() -> int:
     for _f, _needle in (("authorized_by", "authorized_by"),
                         ("reason", "at least"),
                         ("at", "no `at` timestamp")):
-        for _how, _val in _BAD[:4]:
-            refuse_with(f"an approval whose {_f} is {_how}", _needle,
+        for _how, _val, _tok in _BAD[:4]:
+            refuse_with(f"AUTH-{_f.upper()}-{_tok}",
+                        f"an approval whose {_f} is {_how}", _needle,
                         **{_f: _val})
 
     write_lf(approval_path, "{ this is not json\n")

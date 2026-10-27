@@ -1,0 +1,110 @@
+{
+  "schema": "blocking-defects/1",
+  "purpose": "Which open defects block the bootstrap phase from exiting. A classification, not a discovery: every item here is already recorded in the reviewer ledger or the implementer-disclosed register, and this file says only which of them Alex Zamurko has ruled blocking.",
+  "why_a_file": "EC-1 asks whether any critical defect is open. 'Critical' is a judgement, so a check cannot derive this list, and a list that lived only in a conversation could not be checked against. Writing it down lets the exit-criteria script say which items it is evaluating, and lets a later reader see which classification a decision was taken under.",
+  "ruled_by": "Alex Zamurko",
+  "ruled_at": "2026-10-09T17:16:00+05:30",
+  "source": "Slack, workflow channel: 'Agreed. Let's proceed with the four proposed blockers: D02-F01, SELF-F04, SELF-F02 and SELF-F05, provided SELF-F05 is a separate issue from SELF-F02.'",
+  "source_caveat": "The proviso was not met. SELF-F05 is a gap in SELF-F02's repair rather than a separate issue, and a third gap was found the same day. Alex was told this and answered on 9 October at 5:51 pm: keep them together under a reopened SELF-F02 while preserving each individual record. That is how they appear below.",
+  "after_this_date": "A finding raised after 9 October 2026 is unclassified until Alex rules on it, and EC-1 cannot be evaluated while any finding is unclassified. Silence is not a classification.",
+  "second_ruling": {
+    "ruled_by": "Alex Zamurko",
+    "ruled_at": "2026-10-13T00:32:00+05:30",
+    "source": "Slack, workflow channel, message titled 'Eight finding classifications'. Asked for because EC-1 reported eight findings classified neither blocking nor not, and the condition cannot be evaluated while one is outstanding.",
+    "covers": ["B01-F02", "B01-F07", "B01-F11", "B01-F14", "B02-F04", "C02-F08", "C03-F02", "D04-F01"],
+    "each_why_is_his_words": "The `why` field on each of the eight entries below is Alex Zamurko's own sentence from that message, unedited. A classification file records a judgement, so paraphrasing it would put the implementing agent's words where his ruling belongs.",
+    "two_are_conditional": "B01-F14 and C03-F02 were ruled NOT BLOCKING with a stated condition rather than flatly. Both conditions are recorded verbatim in not_blocking below, and each is a claim about the current implementation rather than an assumption to be left alone. Both now stand on controls rather than on the sentence: C03-F02's was already carried by three probe lines when the ruling arrived, and B01-F14's was given one on 14 October 2026, in test_ledger.py with a probe line behind it. A conditional classification whose condition nothing tests is an unconditional one wearing a qualifier.",
+    "examination_not_yet_reconciled": "The eight entries below carry independently_examined_in_cycle: null and repair_landed: null, and that is deliberate rather than researched. Their ledger histories have not yet been reconciled against the controller's own boundary walk, and the ledger's cached state field is exactly what SELF-F01 proved cannot be trusted for this. Null is the conservative direction: EC-1 and EC-4 will count all of them open, which can understate progress and cannot manufacture a pass. Reconciling them with `loop_state.py --json` is the next step, and until it is done this file says less than it eventually will.",
+    "reconciliation_done_and_it_answered_something_else": "Done 27 October 2026 by scripts/reconcile_blocking.py, and the sentence above is wrong about what that step could establish. The controller refuses all three bootstrap reviews outright, because each run.json marks them NOT_A_PROTOCOL_CYCLE, and Alex Zamurko's instruction of 10 September 2026 is that such evidence 'can never accidentally count as authoritative protocol evidence'. Passing --development produces an answer labelled development evidence on every line, and writing that answer into independently_examined_in_cycle would let EC-1 and EC-4 report an independent examination on the strength of a run that is, by ruling, not a protocol outcome. So the tool refuses to write and the nulls stay. What the development walk does establish, for a reader who wants the position rather than the verdict: of the seven ledger findings, 0 are demonstrated, 7 are OPEN and 0 are disputed, at boundary 4 in each run. The remaining three are implementer-disclosed, where by that register's own membership rule no cycle ever produced an identifier, so there is nothing for a walk to place. Zero of the ten can be closed by any work inside the reviews that exist. What they are waiting for is a protocol cycle, which has never been run, and that is Alex Zamurko's safeguard 4 of 26 October 2026: 'One independent review and explicit human approval are required before MVP acceptance, but not for individual development PRs.'",
+    "repair_landed_not_derived": "Still null on six entries and deliberately so. Nothing in the ledger records when a repair landed; the dates on D02-F01 and D04-F01 were written by hand. Deriving the rest from git history would mean deciding which commit was the repair, and a guess written into a classification file is worse than a null, because the null at least says it does not know."
+  },
+  "blocking": {
+    "B01-F02": {
+      "where": "reviewer ledger, BOOTSTRAP-001 plan-review",
+      "condition": "EC-1",
+      "why": "An earlier terminal exit could be overridden, producing an invalid review lifecycle decision.",
+      "ruled": "2026-10-13, second ruling",
+      "repair_landed": null,
+      "independently_examined_in_cycle": null
+    },
+    "B01-F07": {
+      "where": "reviewer ledger, BOOTSTRAP-001 plan-review",
+      "condition": "EC-1",
+      "why": "Incorrect specification/protocol hash binding could validate evidence against the wrong governing version.",
+      "ruled": "2026-10-13, second ruling",
+      "repair_landed": null,
+      "independently_examined_in_cycle": null
+    },
+    "B01-F11": {
+      "where": "reviewer ledger, BOOTSTRAP-001 plan-review",
+      "condition": "EC-1",
+      "why": "The ledger and controller could disagree about authoritative finding states, permitting incorrect decisions.",
+      "ruled": "2026-10-13, second ruling",
+      "repair_landed": null,
+      "independently_examined_in_cycle": null
+    },
+    "B02-F04": {
+      "where": "reviewer ledger, BOOTSTRAP-001 plan-review, raised in cycle 2",
+      "where_was_wrong": "This read 'BOOTSTRAP-002 plan-review' until 27 October 2026, and no ledger there holds the identifier. B02-F04 is in BOOTSTRAP-001's ledger with cycle_raised 2: in this scheme the number after the letter is the CYCLE that raised the finding, not the run. B01-F01 to B01-F18 were raised in cycle 1 of the same review and B02-F04 in cycle 2 of it. The misreading is easy and the consequence is a reviewer following the field to a ledger that does not contain the finding. Found by scripts/reconcile_blocking.py, which locates each item by searching the ledgers rather than by trusting this field, and reported it in BOOTSTRAP-001.",
+      "condition": "EC-3",
+      "why": "A refused supersession could destroy authoritative review evidence, contradicting the requirement to preserve records.",
+      "ruled": "2026-10-13, second ruling",
+      "repair_landed": null,
+      "independently_examined_in_cycle": null
+    },
+    "C02-F08": {
+      "where": "reviewer ledger, BOOTSTRAP-002 plan-review",
+      "condition": "EC-3",
+      "why": "A reviewer could receive a diff unrelated to the frozen candidate, undermining the validity of the entire review.",
+      "ruled": "2026-10-13, second ruling",
+      "repair_landed": null,
+      "independently_examined_in_cycle": null
+    },
+    "D04-F01": {
+      "where": "reviewer ledger, BOOTSTRAP-003 plan-review",
+      "condition": "EC-1",
+      "why": "Invalid source fields could allow an approval without its mandatory authorisation reference.",
+      "ruled": "2026-10-13, second ruling",
+      "repair_landed": "2026-10-12",
+      "independently_examined_in_cycle": null
+    },
+    "D02-F01": {
+      "where": "reviewer ledger, BOOTSTRAP-003 plan-review",
+      "condition": "EC-1",
+      "why": "A finding the parser cannot read is a finding the loop never hears about, and a loop measuring a smaller finding set than the review produced is how a false convergence is reached.",
+      "repair_landed": "2026-10-08",
+      "independently_examined_in_cycle": null
+    },
+    "SELF-F02": {
+      "where": "implementer-disclosed register",
+      "condition": "EC-2",
+      "why": "The testing tool could leave a disabled check in the repository, so every suite would pass for a reason other than the one it names. Alex's second condition, word for word: testing tools must restore the repository correctly.",
+      "repair_landed": "2026-10-09, third attempt, by removing the need to restore at all",
+      "reopened": "2026-10-09, on the implementing agent's recommendation and Alex's agreement, after its repair failed twice in real use",
+      "sub_entries": ["SELF-F05", "SELF-F05b-sentinel-single-slot"],
+      "independently_examined_in_cycle": null
+    },
+    "SELF-F04": {
+      "where": "implementer-disclosed register",
+      "condition": "EC-1",
+      "why": "A machine-readable interface returned prose with a success code on the path where it had computed nothing. Reporting success for work never done is Alex's first condition.",
+      "repair_landed": "2026-10-08",
+      "independently_examined_in_cycle": null
+    },
+    "SELF-F05": {
+      "where": "implementer-disclosed register, tracked under SELF-F02",
+      "condition": "EC-2",
+      "why": "A killed run emptied a covered component and the recovery refused to restore it, so the repository held a 1163-line file reduced to nothing overnight. Kept as its own record because its mechanism is distinct, and grouped under SELF-F02 because it is a gap in that repair rather than an independent defect.",
+      "repair_landed": "2026-10-09",
+      "independently_examined_in_cycle": null
+    }
+  },
+  "not_blocking": {
+    "citation-future-work": "Deferred by Alex on 8 October: reference-list confirmation, the `and` taxonomy cases 8 and 11, and non-year publication-status values. Belongs to the citation product, not the review layer.",
+    "spec-code-test-mapping": "Absent from section 7 of the approval package. A bootstrap run reviews code directly and has no plan, so there is no mapping to produce. Named in the package rather than omitted.",
+    "SELF-F01": "UNVERIFIED as of 11 October 2026, having been RESOLVED until then. The cycle 03 reviewer examined the third repair by reading it and could not execute anything, which under Alex Zamurko's standard for behavioural claims is support rather than establishment. Not blocking: it is not one of the four he classified, and the reclassification is about the strength of the evidence rather than a new defect. Its independent execution is what AR-4 turns on, so the two now say the same thing instead of contradicting each other.",
+    "SELF-F03": "RESOLVED. Examined by the BOOTSTRAP-003 cycle 01 reviewer, with two stated limits.",
+    "B01-F14": "NOT BLOCKING, conditionally. Alex Zamurko, 13 October 2026, word for word: 'Missing enforcement-status metadata is principally an audit-disclosure defect. The current implementation records and validates it. This classification assumes missing metadata cannot still produce an authoritative result.' The last sentence is a behavioural claim and is the whole weight of the ruling, so it needed a control rather than agreement. It now has one. The freeze path was already covered three times in test_run_review.py: a run recording no mc1_enforcement is refused, an unrecognised status is refused, and a new run records the field, so a refusal-only pair could not pass by refusing everything. The door that was uncovered is the one an authoritative result actually comes out of, which is the controller, and it is the door cycle 03's reviewer walked through: he removed the field from an approved run with a completed valid cycle and got an unqualified LOOP_STATUS: CONVERGED. test_ledger.py now builds that exact fixture, confirms it produces a real outcome while the field is present, removes the field, and requires the controller to refuse, to print no LOOP_STATUS beside the refusal, and to refuse for that reason rather than another. The probe's B01-F14b line disables the guard and requires that control to go red. If a path is ever found where absent enforcement metadata still yields an authoritative result, the condition fails and this goes back to him as blocking.",
+    "C03-F02": "NOT BLOCKING, conditionally. Alex Zamurko, 13 October 2026, word for word: 'The scope mismatch caused refusal rather than false approval. The canonical covered-component manifest addresses the underlying problem.' Both halves are checkable rather than assumed, and both are checked today: the probe holds C03-F02a, C03-F02b and C03-F02c, which require an undeclared import to be refused rather than absorbed, the manifest's list to be what its history produces, and a scope change existing only on disk to be refused. Each goes red when its repair is removed. That is the condition standing on evidence instead of on the sentence."
+  }
+}

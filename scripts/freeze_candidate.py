@@ -64,7 +64,7 @@ PURPOSE = (
 
 def git(*args: str) -> subprocess.CompletedProcess:
     return subprocess.run(["git", "-C", str(REPO), *args],
-                          capture_output=True, text=True)
+                          capture_output=True, text=True, encoding="utf-8")
 
 
 def load() -> dict | None:

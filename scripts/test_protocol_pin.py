@@ -60,6 +60,14 @@ import sys
 import tempfile
 from pathlib import Path
 
+# SELF-F16/F20/F25. The Windows console encodes at the locale code page,
+# cp1252, and this program holds characters it has no room for. Without
+# this the work completes and the print raises UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 REPO = Path(__file__).resolve().parent.parent
 STATUS = "specs/PROTOCOL_STATUS.md"
 
@@ -163,6 +171,36 @@ def is_declared_amendment_line(rel: str, line: str, olds: set[str]) -> bool:
     return any(s in (f'"{o}"', f"'{o}'") for o in olds)
 
 
+PACKAGING_FILE = "scripts/build_review_export.py"
+
+
+def is_packaging_manifest_line(rel: str, line: str, recorded: set[str]) -> bool:
+    """True only for a bare quoted filename in the export builder's manifest.
+
+    The export ships the superseded protocol on purpose. PROTOCOL_STATUS.md
+    travels with the package and names that file, so leaving it out would hand
+    an outside reviewer a supersession record pointing at nothing. The builder
+    therefore has to write the superseded filename down, and check 3 read that
+    as an operational reference to a superseded protocol. It is not one. It is
+    a payload being listed for copying, and to a scan for the filename the two
+    are indistinguishable.
+
+    This is why the private CI was red from 16 October: the check was right
+    that the string was there and wrong about what it meant.
+
+    Kept as narrow as the amendment exception above, and for the same reason.
+    Three conditions, all of them required: the right file, a line that is the
+    quoted filename and nothing else, and a filename PROTOCOL_STATUS.md
+    already records. So a sentence in the builder claiming v1.0 governs still
+    fails, and packaging a protocol version the record document has never
+    heard of still fails.
+    """
+    if rel != PACKAGING_FILE:
+        return False
+    s = line.strip().rstrip(",").strip()
+    return any(s in (f'"{n}"', f"'{n}'") for n in recorded)
+
+
 # ------------------------------------------------------------------ checks
 
 def check(root: Path, verbose: bool = True) -> list[str]:
@@ -232,6 +270,15 @@ def check(root: Path, verbose: bool = True) -> list[str]:
         for a in sorted(allowed_old):
             print(f"        declared amendment may name {a}")
 
+    # Derived from the record document rather than listed here, so that a
+    # protocol file dropped from PROTOCOL_STATUS.md loses its packaging
+    # exception in the same edit.
+    recorded = {m.group(0) for m in PROTO_REF.finditer(status_text)
+                if m.group(0) != gov.name}
+    if recorded and verbose:
+        for n in sorted(recorded):
+            print(f"        the export manifest may list {n}")
+
     files: list[Path] = []
     for pat in SCAN:
         files.extend(sorted((root).glob(pat)))
@@ -249,6 +296,8 @@ def check(root: Path, verbose: bool = True) -> list[str]:
                 if found == version:
                     continue
                 if is_declared_amendment_line(rel, line, allowed_old):
+                    continue
+                if is_packaging_manifest_line(rel, line, recorded):
                     continue
                 stale.append(f"{rel}:{i} names v{found}, governing is v{version}\n"
                              f"        {line.strip()[:90]}")
@@ -291,7 +340,13 @@ def controls() -> list[str]:
         d = tmp / name
         (d / "specs" / "prompts").mkdir(parents=True)
         (d / "scripts").mkdir(parents=True)
-        for f in ("verify_amendment.py",):
+        # build_review_export.py is copied for a reason worth stating. The
+        # fixture used to hold verify_amendment.py alone, so the only file in
+        # the repository that actually tripped check 3 was absent from every
+        # control. The clean control reported a passing tree while the real
+        # suite failed, for seven CI runs. A fixture that omits the file the
+        # check is wrong about cannot report the check being wrong.
+        for f in ("verify_amendment.py", "build_review_export.py"):
             shutil.copy2(REPO / "scripts" / f, d / "scripts" / f)
         for f in REPO.glob("specs/implementation-review-protocol-v*.md"):
             shutil.copy2(f, d / "specs" / f.name)
@@ -353,6 +408,26 @@ def controls() -> list[str]:
                    "for, which would make verify_amendment.py unmaintainable")
     else:
         print("  [ok] the declared amendment's own old-side line still passes")
+
+    # the packaging exception must not become a blanket pass for its file:
+    # prose in the builder claiming the superseded version governs is exactly
+    # the defect check 3 exists for, and it lives in the file now excepted
+    d = fresh("packaging-prose")
+    p = d / "scripts" / "build_review_export.py"
+    p.write_text(p.read_text(encoding="utf-8") +
+                 f'\n# Reviews follow specs/{proto("1.0")}.\n',
+                 encoding="utf-8")
+    expect_fail("prose in the export builder naming a superseded version",
+                "superseded protocol version", d)
+
+    # and it must not extend to a version the record document never named,
+    # which is the undeclared-protocol problem arriving through the manifest
+    d = fresh("packaging-unrecorded")
+    p = d / "scripts" / "build_review_export.py"
+    p.write_text(p.read_text(encoding="utf-8") +
+                 f'\nEXTRA = [\n    "{proto("0.9")}",\n]\n', encoding="utf-8")
+    expect_fail("the export manifest listing an unrecorded protocol version",
+                "superseded protocol version", d)
 
     # the record bumped, the code not repinned
     d = fresh("record-ahead")

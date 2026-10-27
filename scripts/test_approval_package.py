@@ -27,6 +27,14 @@ import sys
 import tempfile
 from pathlib import Path
 
+# SELF-F16/F20/F25. The Windows console encodes at the locale code page,
+# cp1252, and this program holds characters it has no room for. Without
+# this the work completes and the print raises UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 SRC = Path(__file__).resolve().parent
 REPO = SRC.parent
 
@@ -41,7 +49,7 @@ def run(*args: str, cwd: Path, script: Path | None = None) -> subprocess.Complet
     """
     return subprocess.run(
         [sys.executable, str(script or (SRC / "approval_package.py")), *args],
-        cwd=str(cwd), capture_output=True, text=True)
+        cwd=str(cwd), capture_output=True, text=True, encoding="utf-8")
 
 
 # The §6 exits that end a loop. Named here rather than imported from the
@@ -473,6 +481,95 @@ def main() -> int:
     else:
         ok("refused: a terminal exit with unauthorized cycles after it is not "
            "an approvable result, and the refusal names them")
+
+    # And the half the first version of this repair got wrong, found by an
+    # independent reading of it on 19 October 2026 rather than by anything
+    # here: the package asked `.get("unauthorized_continuation")`, so a
+    # controller that does not report the field at all was read as reporting
+    # no continuation. Absence treated as zero, inside the repair written to
+    # stop a consumer acting on an exit it had not examined.
+    #
+    # The fixture is a controller stub that answers everything else correctly
+    # and omits that one key, which is what an older version would do.
+    _old = Path(tempfile.mkdtemp()); made.append(_old)
+    (_old / "scripts").mkdir()
+    for _n in ("approval_package.py", "ledger.py", "validate_cycle.py",
+               "cycle_projection.py", "authority.py", "run_pins.py",
+               "findings_format.py"):
+        shutil.copy2(SRC / _n, _old / "scripts" / _n)
+    shutil.copy2(SRC / "loop_state.py", _old / "scripts" / "loop_state.py")
+    # A controller that answers in the old shape: every field the package
+    # needs except the one that was added today.
+    #
+    # The __main__ guard is the whole point of this fixture and the first
+    # version did not have it. approval_package.py uses the controller twice:
+    # it runs it as a subprocess for the JSON, and it *imports* it for
+    # authoritative_items and CannotCalculate. A stub that was a bare script
+    # ending in sys.exit(0) terminated the importing process with status 0 at
+    # line 56, before any guard below it ran. The control read that exit status
+    # as "a package was produced", which is the opposite of what happened:
+    # nothing was produced and nothing was tested. Exit 0 meant two different
+    # things and the control could not tell them apart.
+    #
+    # So the stub is a module first and a script second, and it supplies the
+    # two names the package imports. Returning no items is correct for this
+    # fixture rather than convenient: its one cycle is empty and its ledger
+    # holds no findings, so there is nothing to reconcile and the run reaches
+    # the continuation guard, which is what is under test.
+    (_old / "scripts" / "loop_state.py").write_text(
+        "import json, sys\n"
+        "\n"
+        "\n"
+        "class CannotCalculate(Exception):\n"
+        "    pass\n"
+        "\n"
+        "\n"
+        "def authoritative_items(cycle):\n"
+        "    return []\n"
+        "\n"
+        "\n"
+        "if __name__ == '__main__':\n"
+        "    print(json.dumps({\n"
+        "        'governing_boundary': 2, 'status': 'CONVERGED',\n"
+        "        'label': 'PROTOCOL', 'valid_cycle_count': 2,\n"
+        "        'sets_established': True,\n"
+        "        'open': [], 'resolved': [], 'disputed': [],\n"
+        "    }))\n"
+        "    sys.exit(0)\n", encoding="utf-8", newline="\n")
+    (_old / "runs" / "T-009" / "plan-review" / "cycle-01").mkdir(parents=True)
+    (_old / "runs" / "T-009" / "run.json").write_text(json.dumps({
+        "run_id": "T-009", "mc1_enforcement": "CONVENTION_ONLY",
+        "max_cycles": 4}), encoding="utf-8")
+    (_old / "runs" / "T-009" / "plan-review" / "ledger.json").write_text(
+        json.dumps({"review": "plan-review", "findings": {}}, indent=2),
+        encoding="utf-8")
+    with_register(_old)
+    _oop = Path(tempfile.mkdtemp()) / "old.md"
+    _or = run("--run", "T-009", "--type", "plan", "--out", str(_oop), cwd=_old,
+              script=_old / "scripts" / "approval_package.py")
+    _oo = _or.stdout + _or.stderr
+    # Exit 0 was this control's only evidence and it carries two meanings: the
+    # package was produced, or the process ended early for a reason of its own.
+    # It ended early for a reason of its own, and the control reported the
+    # other one with no way to notice. So the document is now asked for
+    # directly, and a zero exit with no document is reported as what it is.
+    if _or.returncode == 0 and _oop.exists():
+        failures.append(
+            "a package was produced from a controller that never said whether "
+            "the loop was\n  continued past a terminal exit. A missing answer "
+            "was read as the answer 'no'.")
+    elif _or.returncode == 0:
+        failures.append(
+            "the package exited 0 and wrote no document, so this control "
+            "cannot say whether\n  the continuation guard ran. Most likely the "
+            "fixture's controller stub ended the\n  process on import rather "
+            "than being read as a module:\n" + _oo[-400:])
+    elif "CANNOT_ESTABLISH" not in _oo:
+        failures.append(f"refused a controller that omits the field, but not "
+                        f"with the explicit state:\n{_oo[-400:]}")
+    else:
+        ok("refused: a controller that does not say whether the loop was "
+           "continued is one this package cannot approve from")
 
     # Now invalidate only the cycle that carried the demonstration. The ledger
     # is untouched and still caches RESOLVED.

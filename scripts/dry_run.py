@@ -227,7 +227,7 @@ class Failed(Exception):
 
 
 def sh(*args: str, cwd: Path) -> subprocess.CompletedProcess:
-    return subprocess.run(args, cwd=str(cwd), capture_output=True, text=True)
+    return subprocess.run(args, cwd=str(cwd), capture_output=True, text=True, encoding="utf-8")
 
 
 def build_repo(root: Path) -> None:
@@ -272,7 +272,7 @@ class Transcript:
         # Absolute temp paths are noise in a transcript meant to be read as the
         # sequence an operator follows.
         print(f"    $ {shown.replace(str(root) + '/', '').replace(str(root), '.')}")
-        r = subprocess.run(cmd, cwd=str(root), capture_output=True, text=True)
+        r = subprocess.run(cmd, cwd=str(root), capture_output=True, text=True, encoding="utf-8")
         out = (r.stdout + r.stderr).rstrip()
         for line in out.splitlines()[:14]:
             print(f"      {line}")

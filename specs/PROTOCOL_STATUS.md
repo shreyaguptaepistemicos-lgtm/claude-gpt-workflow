@@ -12,6 +12,36 @@ AUTHORITATIVE   yes, confirmed by Alex Zamurko 9 September 2026, 12:03 AM
 v1.0 was confirmed on 8 September and is retained rather than overwritten. No run
 ever referenced it.
 
+## Current state, declared and checked
+
+Everything in this section is a claim about today and every line of it is
+verified by `scripts/test_system_identity.py` against the system it describes.
+Everything **outside** this section is a record of what was decided and when.
+Some of it was true when written and is no longer. It is kept rather than
+rewritten, on Alex Zamurko's ruling of 19 October 2026: "Historical statements
+should not be silently rewritten as current facts."
+
+<!-- SYSTEM-IDENTITY-BEGIN -->
+```text
+STATUS_AS_OF        2026-10-22
+COVERED_MANIFEST    specs/covered-components.json
+COVERED_VERSION     1
+COVERED_COUNT       11
+COVERED_SHA256      49cf5da6961051efc096cc073fd0cca3b4b13f24bc1c9d8fb3e86e41a89ac30e
+```
+<!-- SYSTEM-IDENTITY-END -->
+
+The manifest is named rather than copied, so this document cannot drift from
+it by restating it. What is checked is that the pointer is current: the
+version, the count and the digest all have to agree with the file on disk, and
+`STATUS_AS_OF` has to be no older than the manifest's last recorded scope
+change. A scope change that does not update this block fails, which is the
+property issue 6 asked for and the reason the block exists at all.
+
+The check also requires the covered set to be closed under its own imports.
+A manifest pinning a file whose dependencies are unpinned describes a smaller
+system than the one that runs.
+
 ## The governing file
 
 `specs/implementation-review-protocol-v1.1.md`
@@ -224,7 +254,15 @@ A gate that only asked whether a review had happened would pass forever while th
 reviewed code changed underneath it, which is the superseded-pin defect one level
 up.
 
-### Scope, and the hole in the first version
+### Scope as it stood on 9 September 2026, and the hole in the first version
+
+> Historical. This records how the covered set was arrived at and what was
+> wrong with the first attempt. It is **not** the current scope: that is the
+> manifest named in the declared block above, which has since been made
+> explicit and now holds eleven components rather than the five below. Four of
+> the additions are exactly the dependencies this section describes as absent.
+> Alex Zamurko's ruling of 2 October 2026 is recorded in the manifest's own
+> history.
 
 Widened by Alex Zamurko on 9 September, twice.
 
@@ -258,15 +296,22 @@ check. Because an empty closure and an inert scanner look identical, a control
 builds a dependency that does not exist in this tree and requires it to be
 discovered, pinned, and to invalidate the approval when edited.
 
-Current state:
+State on 9 September 2026:
 
 ```text
 BOOTSTRAP_REVIEW: NOT SATISFIED — no decision on record
 ```
 
-Correct and expected. The review has not been run yet.
+Correct and expected on that date. Three bootstrap reviews have run since,
+BOOTSTRAP-001 through BOOTSTRAP-003, and their records are under `runs/`.
+The line above is kept because it is what the document said, not because it
+is true now. For the current gate state, run `scripts/bootstrap_gate.py check`
+rather than reading this.
 
-## Next
+## The plan as written on 9 September 2026
+
+> Historical. This was the sequence at the time. Most of it has happened.
+> It is not a status report and should not be read as one.
 
 ```text
 done  v1.1 confirmed authoritative, 9 September

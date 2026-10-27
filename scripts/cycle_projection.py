@@ -88,7 +88,7 @@ def gate(cycle_dir: Path) -> tuple[bool, str]:
     note exists to prevent.
     """
     r = subprocess.run([sys.executable, str(VALIDATOR), str(cycle_dir)],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8")
     if r.returncode == 2:
         return False, "checker could not run"
     reason = ""

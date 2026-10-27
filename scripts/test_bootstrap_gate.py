@@ -30,6 +30,18 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "scripts"
 
+# Issue 8. specs/FIXTURE-SOURCES.md for the rule and why the absent case has
+# to be stated.
+FIXTURE_SOURCES = {
+    "approvals": "canonical: the gate replays the covered manifest's version "
+                 "history and refuses a scope change with no authorisation "
+                 "behind it, so a fixture exercising the gate needs the real "
+                 "authorisation records and an invented set would be testing "
+                 "the invention. absent: shutil.copytree raises "
+                 "FileNotFoundError and the suite stops before any control "
+                 "runs, so it cannot pass for the absence.",
+}
+
 EVIDENCE = ("codex-input.md", "codex-output-raw.md", "findings.md",
             "claude-response.md")
 
@@ -46,7 +58,7 @@ def sha256_file(p: Path) -> str:
 
 
 def sh(*args: str, cwd: Path) -> subprocess.CompletedProcess:
-    return subprocess.run(args, cwd=str(cwd), capture_output=True, text=True)
+    return subprocess.run(args, cwd=str(cwd), capture_output=True, text=True, encoding="utf-8")
 
 
 def force_rmtree(p: Path) -> None:
@@ -150,7 +162,7 @@ TARGET = "runs/B-001/plan-review/cycle-01/target.json"
 
 def gate(root: Path, *args: str) -> subprocess.CompletedProcess:
     return subprocess.run([sys.executable, str(root / "scripts" / "bootstrap_gate.py"),
-                           *args], cwd=str(root), capture_output=True, text=True)
+                           *args], cwd=str(root), capture_output=True, text=True, encoding="utf-8")
 
 
 def approve(root: Path, who: str = "Alex Zamurko") -> subprocess.CompletedProcess:
@@ -922,7 +934,7 @@ def main() -> int:
 
     def git(root: Path, *args: str) -> subprocess.CompletedProcess:
         return subprocess.run(["git", "-C", str(root), *args],
-                              capture_output=True, text=True)
+                              capture_output=True, text=True, encoding="utf-8")
 
     def git_repo() -> Path:
         root = build(); made.append(root)
@@ -1054,7 +1066,7 @@ def main() -> int:
     def runner(root: Path, *args: str) -> subprocess.CompletedProcess:
         return subprocess.run(
             [sys.executable, str(root / "scripts" / "run_review.py"), *args],
-            cwd=str(root), capture_output=True, text=True)
+            cwd=str(root), capture_output=True, text=True, encoding="utf-8")
 
     t2b = git_repo()
     r = runner(t2b, "init", "--run", "E-001", "--bootstrap-exempt",
@@ -1087,7 +1099,7 @@ def main() -> int:
          "--run", "X-001", "--bootstrap-exempt",
          "--protocol", "specs/evidence-schema-v1.0.md",
          "--spec", "specs/evidence-schema-v1.0.md"],
-        cwd=str(t3), capture_output=True, text=True)
+        cwd=str(t3), capture_output=True, text=True, encoding="utf-8")
     if r.returncode == 0:
         failures.append("--bootstrap-exempt still created a run after the "
                         "exception ended")

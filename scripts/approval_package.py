@@ -55,6 +55,14 @@ import run_pins  # noqa: E402
 # it. See the reconciliation under SELF-F01 below.
 import loop_state  # noqa: E402
 
+# SELF-F16/F20/F25. The Windows console encodes at the locale code page,
+# cp1252, and this program holds characters it has no room for. Without
+# this the work completes and the print raises UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 # The ten items §7 names, in its order. Presence is reported against this list
 # rather than against whatever the package happened to manage, so an item that
 # silently stopped being produced shows up as absent instead of disappearing.
@@ -79,7 +87,7 @@ class Refused(Exception):
 def run_tool(*args: str) -> tuple[int, str]:
     """Run one of this repo's tools and return exactly what it said."""
     r = subprocess.run([sys.executable, *args], cwd=str(REPO),
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8")
     return r.returncode, (r.stdout + r.stderr).rstrip()
 
 
@@ -374,7 +382,30 @@ def main() -> int:
         # approved from. The §6 exit itself is preserved and quoted: the
         # historical result is not rewritten, it is withheld from use until a
         # person decides what the continuation means.
-        _uc = _proj.get("unauthorized_continuation")
+        # Absent is not the same as none, and `.get()` cannot tell them apart.
+        #
+        # Found on 19 October 2026 by an independent reading of this repair,
+        # hours after it landed: a controller that does not report the field,
+        # an older one or one whose output was truncated, would be read as
+        # reporting no continuation, and the package would be produced. That
+        # is absence treated as zero, inside the repair written to stop a
+        # consumer acting on an exit it had not examined.
+        #
+        # So the question is asked of the key, not of its value. A controller
+        # that cannot say is one this package cannot approve from.
+        if "unauthorized_continuation" not in _proj:
+            raise Refused(
+                "LOOP_STATE: CANNOT_ESTABLISH\n"
+                "  The controller's machine-readable result does not say "
+                "whether this loop was\n  continued past a terminal exit "
+                "without authorization. It may not have been,\n  and this "
+                "package cannot tell.\n\n"
+                "  An older controller, or a truncated reply, produces "
+                "exactly this. Treating a\n  missing answer as the answer "
+                "'no' is the defect this check exists to prevent,\n  so it is "
+                "refused rather than assumed.")
+
+        _uc = _proj["unauthorized_continuation"]
         if _uc:
             raise Refused(
                 "LOOP_STATE: UNAUTHORIZED_CONTINUATION\n"

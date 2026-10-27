@@ -149,7 +149,7 @@ spec_digest = run_pins.spec_digest
 def git_head() -> str | None:
     try:
         r = subprocess.run(["git", "-C", str(REPO), "rev-parse", "HEAD"],
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, encoding="utf-8")
         return r.stdout.strip() if r.returncode == 0 else None
     except FileNotFoundError:
         return None
@@ -576,7 +576,7 @@ def check_loop_not_terminated(review_dir: Path, n: int, run: dict) -> None:
     # now; this stops the flag being decided by a second copy of the rule.
     if run_pins.run_kind(run)[0] == run_pins.DEVELOPMENT:
         argv.append("--development")
-    r = subprocess.run(argv, capture_output=True, text=True)
+    r = subprocess.run(argv, capture_output=True, text=True, encoding="utf-8")
 
     # B03-F01. This tested for exit code 2 alone. The replay added for B01-F11
     # raises UnknownEvent, loop_state caught only CannotCalculate, so an
@@ -968,7 +968,7 @@ def cmd_freeze(args: argparse.Namespace) -> int:
         rc = subprocess.run(
             ["git", "-C", str(REPO), "rev-parse", "--verify",
              f"{args.candidate_commit}^{{commit}}"],
-            capture_output=True, text=True)
+            capture_output=True, text=True, encoding="utf-8")
         if rc.returncode != 0:
             raise Refused(
                 f"--candidate-commit does not resolve to a commit: "
@@ -987,7 +987,7 @@ def cmd_freeze(args: argparse.Namespace) -> int:
         # time and could pair a tree with a commit that was never the one frozen.
         rt = subprocess.run(
             ["git", "-C", str(REPO), "rev-parse", f"{resolved}^{{tree}}"],
-            capture_output=True, text=True)
+            capture_output=True, text=True, encoding="utf-8")
         if rt.returncode != 0:
             raise Refused(f"cannot resolve the tree of {resolved}")
 
@@ -1039,7 +1039,7 @@ def cmd_freeze(args: argparse.Namespace) -> int:
 
         rb = subprocess.run(
             ["git", "-C", str(REPO), "rev-parse", "--verify",
-             f"{args.base}^{{commit}}"], capture_output=True, text=True)
+             f"{args.base}^{{commit}}"], capture_output=True, text=True, encoding="utf-8")
         if rb.returncode != 0:
             raise Refused(f"--base does not resolve to a commit: {args.base}")
         base_resolved = rb.stdout.strip()
@@ -1065,7 +1065,7 @@ def cmd_freeze(args: argparse.Namespace) -> int:
 
         def _git_text(argv: list[str], what: str) -> str:
             rr = subprocess.run(["git", "-C", str(REPO), *argv],
-                                capture_output=True, text=True)
+                                capture_output=True, text=True, encoding="utf-8")
             if rr.returncode != 0:
                 raise Refused(f"deriving the {what} failed:\n  "
                               f"{rr.stderr.strip()}")
@@ -1186,7 +1186,7 @@ def cmd_freeze(args: argparse.Namespace) -> int:
     for _e in aux:
         try:
             _r = subprocess.run([sys.executable, str(REPO / _e["path"])],
-                                capture_output=True, text=True, env=_env,
+                                capture_output=True, text=True, encoding="utf-8", env=_env,
                                 cwd=str(REPO), timeout=900)
             _code, _out = _r.returncode, (_r.stdout or "") + (_r.stderr or "")
         except subprocess.TimeoutExpired:
@@ -1503,6 +1503,14 @@ def cmd_freeze(args: argparse.Namespace) -> int:
 # by this runner and by the MC-2 checker. Two implementations of a format is how
 # the prompt, the ledger and the parser ended up each enforcing their own.
 import findings_format
+
+# SELF-F16/F20/F25. The Windows console encodes at the locale code page,
+# cp1252, and this program holds characters it has no room for. Without
+# this the work completes and the print raises UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
 
 CLASSES = findings_format.CLASSES
 
@@ -2095,7 +2103,7 @@ def cmd_record(args: argparse.Namespace) -> int:
     print()
 
     r = subprocess.run([sys.executable, str(VALIDATOR), str(cycle)],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8")
     print(r.stdout.rstrip())
     if r.stderr.strip():
         print(r.stderr.rstrip(), file=sys.stderr)

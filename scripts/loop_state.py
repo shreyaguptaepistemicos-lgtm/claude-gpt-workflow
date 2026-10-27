@@ -68,6 +68,14 @@ import run_pins  # noqa: E402
 # same `str(x).strip()` expression written out in two files and wrong in both.
 import authority  # noqa: E402
 
+# SELF-F16/F20/F25. The Windows console encodes at the locale code page,
+# cp1252, and this program holds characters it has no room for. Without
+# this the work completes and the print raises UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 VALIDATOR = REPO / "scripts" / "validate_cycle.py"
 # One copy, in cycle_projection, where the valid cycles it counts are decided.
 MAX_VALID_CYCLES = cycle_projection.MAX_VALID_CYCLES
@@ -643,6 +651,10 @@ def _run(a) -> int:
                 "label": label,
                 "valid_cycle_count": 0,
                 "sets_established": False,
+                # Carried on both branches, for the same reason
+                # sets_established is: a caller asks one question rather
+                # than inferring from which keys happen to be present.
+                "run_classification": kind,
                 "detail": "No valid cycle has been completed, so §6 has "
                           "nothing to measure. No boundary was walked and no "
                           "finding sets exist to report.",
@@ -1028,6 +1040,26 @@ def _run(a) -> int:
             # the keys are present. A caller that never looks at it still sees
             # the sets here and no sets on the other branch.
             "sets_established": True,
+            # PROTOCOL or DEVELOPMENT, stated positively.
+            #
+            # Added 27 October for EC-4, which had to establish that a named
+            # cycle belongs to a protocol run. Its first attempt matched the
+            # REFUSED text on the default path, which refuses a development
+            # run and lets every other failure through: a missing
+            # controller, an unparseable reply or a reworded refusal all
+            # read as "not development" and therefore as acceptable. A check
+            # that fails open is the thing this file is full of findings
+            # about. With the kind in the payload the caller can require
+            # PROTOCOL and treat absence as refusal.
+            "run_classification": kind,
+            # Which cycles, not just how many. A caller asking what a
+            # RESOLVED finding was demonstrated in has to restrict the
+            # history to the cycles this walk accepted, and a count cannot
+            # do that: validity is not contiguous, so "cycles 1..n" is a
+            # guess that is right most of the time, which is the worst kind.
+            # Added 27 October for reconcile_blocking.py, which needed it and
+            # would otherwise have restated the rule to get it.
+            "valid_cycles": sorted(valid),
             "open": sorted(cur[OPEN]),
             "resolved": sorted(cur[RESOLVED]),
             "disputed": sorted(cur[DISPUTED]),

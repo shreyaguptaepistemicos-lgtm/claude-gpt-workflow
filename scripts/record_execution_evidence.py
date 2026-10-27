@@ -74,6 +74,14 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
+# SELF-F16/F20/F25. The Windows console encodes at the locale code page,
+# cp1252, and this program holds characters it has no room for. Without
+# this the work completes and the print raises UnicodeEncodeError.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 REPO = Path(__file__).resolve().parent.parent
 EVIDENCE = REPO / "evidence" / "execution-evidence.json"
 RAW = REPO / "evidence" / "github"
@@ -227,15 +235,33 @@ def main() -> int:
                     "read. Save it as UTF-8.")
 
     tok = token()
-    if not tok:
-        return fail("no GITHUB_TOKEN in .env, so the run cannot be verified "
-                    "with GitHub.\n\n"
-                    "  Add a line GITHUB_TOKEN=<value> to .env, using a "
-                    "fine-grained token with\n  Actions: Read-only on this "
-                    "repository. Do not pass it as an argument and do\n  not "
-                    "set it in your shell: both leave it in a history.\n\n"
-                    "  Recording without verification is not offered. That is "
-                    "the defect Alex\n  Zamurko named on 15 October.")
+
+    # Ask the credential whether it can do this before doing it. SELF-F28's
+    # residual, written 26 October.
+    #
+    # Until now the first sign of a credential problem was whatever GitHub
+    # said about the specific call that failed, and GitHub says 404 for a
+    # repository that does not exist, for one the token may not know about,
+    # and for a run id that is wrong. Three causes, one answer, and the hint
+    # below used to list all three and leave the reader to guess. It cost
+    # eight days in October and two rounds on the day the repository moved.
+    #
+    # check_credential asks the two questions that separate them: can this
+    # token see the repository the origin remote names, and may it read that
+    # repository's Actions. A failure here names which.
+    import check_credential as _cred  # local import: this is the only caller
+    _state = "present" if tok else _cred.token_line()[0]
+    _verdict, _headline, _detail = _cred.classify(
+        _state, _cred.origin(), lambda u: _cred.live_get(u, tok))
+    if _verdict == _cred.FAIL:
+        return fail(f"{_headline}\n  {_detail}\n\n"
+                    "  Recording without verification is not offered. That "
+                    "is the defect Alex\n  Zamurko named on 15 October.")
+    if _verdict == _cred.UNKNOWN:
+        print(f"  [note] the credential could not be checked first: "
+              f"{_headline}")
+        print("         Continuing, because that is not a statement that it "
+              "is broken.")
 
     run, err = api(f"/repos/{owner}/{repo}/actions/runs/{run_id}", tok)
     if err:
@@ -265,7 +291,7 @@ def main() -> int:
     if not re.fullmatch(r"[0-9a-f]{40}", sha):
         return fail(f"GitHub did not report a commit for run {run_id}")
     have = subprocess.run(["git", "-C", str(REPO), "cat-file", "-t", sha],
-                          capture_output=True, text=True)
+                          capture_output=True, text=True, encoding="utf-8")
     if have.returncode != 0 or have.stdout.strip() != "commit":
         return fail(f"GitHub says run {run_id} examined {sha[:12]}, and this "
                     f"repository has no\n  such commit. Fetch it, or the "
